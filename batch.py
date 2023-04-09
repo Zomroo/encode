@@ -107,7 +107,7 @@ def dby_command_handler(update, context):
 
 # Add handlers for the start, en and dy commands
 batch_handler = CommandHandler("batch", batch_command_handler)
-dby_handler = CommandHandler("dby", dy_command_handler)
+dby_handler = CommandHandler("dby", dby_command_handler)
 
 dispatcher.add_handler(dy_handler)
 
