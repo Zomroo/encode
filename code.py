@@ -4,7 +4,7 @@ import uuid
 
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-
+from pyrogram.handlers import ConversationHandler
 from config import BOT_TOKEN
 from database import Database
 
@@ -40,10 +40,18 @@ def dy_command_handler(_, message: Message):
     message.reply_text("Please enter the image ID:")
 
     # start the conversation handler
-    app.conversation("image_id", message.chat.id, message.message_id, handle_image_id)
+    conv_handler = ConversationHandler(
+        entry_points=[message],
+        states={
+            "image_id": [MessageHandler(callback=handle_image_id)]
+        },
+        fallbacks=[],
+        allow_reentry=True
+    )
+    app.add_handler(conv_handler)
 
 
-def handle_image_id(client, message):
+def handle_image_id(_, message: Message):
     # get the image ID from the user's message
     image_id = message.text.strip()
 
@@ -57,7 +65,7 @@ def handle_image_id(client, message):
         return
 
     # send the image to the user
-    client.send_photo(chat_id=message.chat.id, photo=image["file_id"])
+    app.send_photo(chat_id=message.chat.id, photo=image["file_id"])
 
     # end the conversation
     return ConversationHandler.END
