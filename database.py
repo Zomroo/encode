@@ -38,7 +38,7 @@ class Database:
                 'file_size': image.file_size,
                 'file_unique_id': image.file_unique_id,
                 'file_name': image.file_path.split('/')[-1], # use file_path to get the file name
-                'mime_type': file.file_path.split('.')[-1]
+                'mime_type': image.file_path.split('.')[-1]
             })
         if len(documents) > 0:
             collection.insert_many(documents)
