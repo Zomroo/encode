@@ -40,7 +40,11 @@ def dy_command_handler(_, message: Message):
     message.reply_text("Please enter the image ID:")
 
     # set the next handler to get the image ID from the user
-    app.register_next_step_handler(message, handle_image_id)
+    @app.on_message(filters.create(lambda _, m: m.from_user.id == message.from_user.id))
+    def handle_image_id_1(_, message: Message):
+        handle_image_id(message)
+
+    app.selective_next(handle_image_id_1)
 
 
 def handle_image_id(message: Message):
