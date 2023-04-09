@@ -27,6 +27,8 @@ def encrypt_image(message):
         # Encrypt the image by shuffling the pixels
         h, w, c = arr.shape
         flat_arr = arr.reshape(-1, c)
+        random_seed = np.random.randint(1, 100000) # Generate a random seed to use for shuffling
+        np.random.seed(random_seed)
         np.random.shuffle(flat_arr)
         arr = flat_arr.reshape(h, w, c)
         encrypted_img = Image.fromarray(arr)
@@ -36,6 +38,9 @@ def encrypt_image(message):
         encrypted_img.save(buffered, format="JPEG")
         buffered.seek(0)
         bot.send_photo(message.chat.id, photo=buffered)
+        
+        # Send the user the random seed used for encryption
+        bot.reply_to(message, f"The random seed used for encryption is {random_seed}. Use this seed with the /dy command to decrypt the image.")
     except Exception as e:
         bot.reply_to(message, "Error: " + str(e))
 
@@ -43,8 +48,9 @@ def encrypt_image(message):
 @bot.message_handler(commands=['dy'])
 def decrypt_image(message):
     try:
-        # Get the photo from the message
+        # Get the photo and random seed from the message
         photo = message.reply_to_message.photo[-1].file_id
+        random_seed = int(message.text.split()[-1]) # Extract the random seed from the message text
         file_info = bot.get_file(photo)
         downloaded_file = bot.download_file(file_info.file_path)
         
@@ -55,14 +61,14 @@ def decrypt_image(message):
         # Decrypt the image by unshuffling the pixels
         h, w, c = arr.shape
         flat_arr = arr.reshape(-1, c)
-        np.random.seed(123) # Use the same random seed as the encryption algorithm
+        np.random.seed(random_seed) # Use the same random seed as the encryption algorithm
         unshuffled_arr = np.zeros_like(flat_arr)
         for i, j in enumerate(np.argsort(np.random.random(len(flat_arr)))):
             unshuffled_arr[j] = flat_arr[i]
         arr = unshuffled_arr.reshape(h, w, c)
-        decrypted_img = Image.fromarray(arr)
         
-        # Send the decrypted image to the user
+        # Convert the decrypted image to bytes and send it to the user
+        decrypted_img = Image.fromarray(arr)
         buffered = BytesIO()
         decrypted_img.save(buffered, format="JPEG")
         buffered.seek(0)
