@@ -5,7 +5,7 @@ import code
 
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram.ext import Updater
-from code import start_handler, en_handler, dy_handler
+from code import start_handler, en_handler, dy_handler, dy_command_handler
 from batch import batch_command_handler, done_command_handler, image_handler
 from reset import reset_handler
 from database import Database
