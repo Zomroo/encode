@@ -32,6 +32,7 @@ class Database:
         collection = self.db['images']
         documents = []
         for image in images:
+            print(image) # print the image object to see what information it contains
             documents.append({
                 'batch_id': batch_id,
                 'file_id': image.file_id,
