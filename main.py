@@ -72,7 +72,7 @@ def decrypt_image(update: Update, context: CallbackContext) -> None:
 
 def main() -> None:
     # Create the Updater and pass it your bot's token.
-    updater = Updater('YOUR_TOKEN_HERE')
+    updater = Updater('5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk')
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
