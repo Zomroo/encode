@@ -14,7 +14,6 @@ app = Client(
     bot_token=TOKEN,
     api_id=16844842,
     api_hash="f6b0ceec5535804be7a56ac71d08a5d4"
-    debug=True
 )
 
 # Define the /start command
@@ -113,4 +112,5 @@ def decrypt_image(client, message):
     os.remove(photo_file)
 
 # Start the bot
+app.run(debug=True)
 app.run()
