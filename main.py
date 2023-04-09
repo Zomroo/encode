@@ -1,88 +1,59 @@
-import numpy as np
-import telebot
+import pyrogram
+from pyrogram import filters
 from PIL import Image
-from io import BytesIO
 
-TOKEN = '5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk'
-bot = telebot.TeleBot(TOKEN)
+api_id = 16844842
+api_hash = "f6b0ceec5535804be7a56ac71d08a5d4"
+bot_token = "5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk"
 
-# Handler for the /start command
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "Welcome to the image encryption and decryption bot! Send me a photo and use the /en command to encrypt it, or use the /dy command followed by an encrypted photo to decrypt it.")
-
-@bot.message_handler(commands=['en'])
-def encrypt_image(message):
-    try:
-        # Get the photo from the message
-        photo = message.reply_to_message.photo[-1].file_id
-        file_info = bot.get_file(photo)
-        downloaded_file = bot.download_file(file_info.file_path)
-        
-        # Convert the downloaded file to an image
-        img = Image.open(BytesIO(downloaded_file))
-        arr = np.array(img)
-        
-        # Encrypt the image by shuffling the pixels
-        h, w, c = arr.shape
-        flat_arr = arr.reshape(-1, c)
-        pattern = np.array([[3, 0, 2, 1], [1, 2, 0, 3], [2, 3, 1, 0], [0, 1, 3, 2]]) # Define the pattern for shuffling
-        pattern_flat = pattern.reshape(-1)
-        encrypted_flat_arr = np.zeros_like(flat_arr)
-        for i in range(h*w):
-            if i < len(pattern_flat) and i < len(flat_arr): # Check that the indices are within bounds
-                encrypted_flat_arr[i] = flat_arr[i][pattern_flat[i % 16]] # Shuffle the pixels according to the pattern
-        encrypted_arr = encrypted_flat_arr.reshape(h, w, c)
-        encrypted_img = Image.fromarray(encrypted_arr)
-        
-        # Send the encrypted image to the user
-        buffered = BytesIO()
-        encrypted_img.save(buffered, format="JPEG")
-        buffered.seek(0)
-        bot.send_photo(message.chat.id, photo=buffered)
-        
-        # Send the user the pattern used for encryption
-        bot.reply_to(message, f"The pattern used for encryption is {pattern}. Use this pattern with the /dy command to decrypt the image.")
-    except Exception as e:
-        bot.reply_to(message, "Error: " + str(e))
-
-# Handler for the /dy command
-@bot.message_handler(commands=['dy'])
-def decrypt_image(message):
-    try:
-        # Get the photo and pattern from the message
-        photo = message.reply_to_message.photo[-1].file_id
-        pattern_str = message.text.split()[-1] # Extract the pattern from the message text
-        pattern = np.array([int(x) for x in pattern_str.split(",")]).reshape(4, 4) # Convert the pattern string to a numpy array
-        file_info = bot.get_file(photo)
-        downloaded_file = bot.download_file(file_info.file_path)
-        
-        # Convert the downloaded file to an image
-        encrypted_img = Image.open(BytesIO(downloaded_file))
-        arr = np.array(encrypted_img)
-        
-        # Decrypt the image by unshuffling the pixels in the pattern
-        h, w, c = arr.shape
-        flat_arr = arr.reshape(-1, c)
-        decrypted_flat_arr = np.zeros_like(flat_arr)
-        for i in range(h*w):
-            new_i, new_j = np.unravel_index(i, (h, w)) # Get the original indices of the pixel
-            new_i = int(pattern[new_i // 4, new_j // 4] * 4 + new_i % 4) # Convert the indices in the pattern to the original indices
-            new_j = int(pattern[new_i // 4, new_j // 4] % 4 * 4 + new_j % 4)
-            decrypted_flat_arr[new_i*w+new_j] = flat_arr[i] # Copy the pixel value to its new position in the decrypted image
-        
-        arr = decrypted_flat_arr.reshape(h, w, c)
-        
-        # Convert the decrypted image to bytes and send it to the user
-        decrypted_img = Image.fromarray(arr)
-        buffered = BytesIO()
-        decrypted_img.save(buffered, format="JPEG")
-        buffered.seek(0)
-        bot.send_photo(message.chat.id, photo=buffered)
-    except Exception as e:
-        bot.reply_to(message, "Error: " + str(e))
+app = pyrogram.Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 
+def reverse_pixels(image):
+    """Reverses the pixel values of an image"""
+    return Image.eval(image, lambda x: 255 - x)
 
 
-bot.polling()
+def inverse_pixels(image):
+    """Inverses the pixel values of an image"""
+    return Image.eval(image, lambda x: 255 ^ x)
+
+
+@app.on_message(filters.command("start"))
+def start_command(client, message):
+    """Handles the /start command"""
+    client.send_message(
+        chat_id=message.chat.id,
+        text="Hi! Send me an image with the /en command to reverse the pixels or /dy command to inverse the pixels."
+    )
+
+
+@app.on_message(filters.command("en"))
+def en_command(client, message):
+    """Handles the /en command"""
+    if message.reply_to_message and message.reply_to_message.photo:
+        image = message.reply_to_message.photo[-1].download()
+        with Image.open(image) as im:
+            im = im.convert("L")
+            reversed_im = reverse_pixels(im)
+            reversed_im.save(image)
+            message.reply_to_message.reply_photo(image)
+    else:
+        message.reply_text("Please reply to an image with this command.")
+
+
+@app.on_message(filters.command("dy"))
+def dy_command(client, message):
+    """Handles the /dy command"""
+    if message.reply_to_message and message.reply_to_message.photo:
+        image = message.reply_to_message.photo[-1].download()
+        with Image.open(image) as im:
+            im = im.convert("L")
+            inverse_im = inverse_pixels(im)
+            inverse_im.save(image)
+            message.reply_to_message.reply_photo(image)
+    else:
+        message.reply_text("Please reply to an image with this command.")
+
+
+app.run()
