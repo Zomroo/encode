@@ -31,7 +31,7 @@ def en_command_handler(_, message: Message):
     db.insert_document("images", {"_id": image_id, "file_id": message.reply_to_message.photo.file_id})
 
     # send a reply to the user with the ID
-    message.reply_photo(photo="husysb.png", caption=f"Your image ID is {image_id}.")
+    message.reply_photo(photo="/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg", caption=f"Your image ID is {image_id}.")
 
 
 @app.on_message(filters.command("dy"))
