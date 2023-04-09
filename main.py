@@ -4,6 +4,8 @@ import time
 from telegram.ext import Updater, CommandHandler
 from database import Database
 from config import BOT_TOKEN
+from code import start_handler, en_handler, dy_handler
+
 
 # Create an Updater object and pass in the bot's token
 updater = Updater(token=BOT_TOKEN, use_context=True)
