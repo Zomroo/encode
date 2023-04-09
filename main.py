@@ -53,7 +53,7 @@ def decrypt_image(message):
         # Get the photo and pattern from the message
         photo = message.reply_to_message.photo[-1].file_id
         pattern_str = message.text.split()[-1] # Extract the pattern from the message text
-        pattern = np.array([int(x) for x in pattern_str.split(",")]).reshape(3,3) # Convert the pattern string to a numpy array
+        pattern = np.array([int(x) for x in pattern_str.split(",")]).reshape(4, 4) # Convert the pattern string to a numpy array
         file_info = bot.get_file(photo)
         downloaded_file = bot.download_file(file_info.file_path)
         
@@ -65,13 +65,11 @@ def decrypt_image(message):
         h, w, c = arr.shape
         flat_arr = arr.reshape(-1, c)
         decrypted_flat_arr = np.zeros_like(flat_arr)
-        for i in range(h):
-            for j in range(w):
-                for k in range(c):
-                    new_i, new_j = np.where(pattern == np.array([i % 3, j % 3])) # Find the indices in the pattern that correspond to the current pixel
-                    new_i = new_i[0] + (i // 3) * 3 # Convert the indices to the position of the pixel in the original image
-                    new_j = new_j[0] + (j // 3) * 3
-                    decrypted_flat_arr[new_i*w+new_j][k] = flat_arr[i*w+j][k] # Copy the pixel value to its new position in the decrypted image
+        for i in range(h*w):
+            new_i, new_j = np.unravel_index(i, (h, w)) # Get the original indices of the pixel
+            new_i = int(pattern[new_i % 4, new_j % 4] / 4) * 4 + int(new_i / 4) # Convert the indices in the pattern to the original indices
+            new_j = int(pattern[new_i % 4, new_j % 4] % 4) * 4 + int(new_j / 4)
+            decrypted_flat_arr[new_i*w+new_j] = flat_arr[i] # Copy the pixel value to its new position in the decrypted image
         
         arr = decrypted_flat_arr.reshape(h, w, c)
         
@@ -83,6 +81,7 @@ def decrypt_image(message):
         bot.send_photo(message.chat.id, photo=buffered)
     except Exception as e:
         bot.reply_to(message, "Error: " + str(e))
+
 
 
 bot.polling()
