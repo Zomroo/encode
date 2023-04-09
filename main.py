@@ -32,9 +32,18 @@ def encrypt_image(update, context):
     pixels = list(img.getdata())
     random.shuffle(pixels)
 
+    # Save the shuffled pixels along with their original position
+    pixel_list = [(pixels[i], i) for i in range(len(pixels))]
+
+    # Sort the pixel list based on the shuffled pixel values
+    pixel_list.sort()
+
+    # Get the original position of each pixel in the shuffled list
+    original_positions = [p[1] for p in pixel_list]
+
     # Create a new image with the same dimensions and the encrypted pixel values
     encrypted_img = Image.new('RGB', (width, height))
-    encrypted_img.putdata(pixels)
+    encrypted_img.putdata([p[0] for p in pixel_list])
 
     # Save the encrypted image to a buffer
     buffer = io.BytesIO()
@@ -69,6 +78,10 @@ def decrypt_image(update, context):
     # Reverse the order of the pixels to get the original pixel values
     original_pixels = list(reversed(pixels))
 
+    # Get the original position of each pixel in the shuffled list
+    original_positions = [p[1] for p in pixels]
+    original_pixels = [original_pixels[i] for i in original_positions]
+
     # Create a new image with the same dimensions and the decrypted pixel values
     decrypted_img = Image.new('RGB', (width, height))
     decrypted_img.putdata(original_pixels)
@@ -80,6 +93,7 @@ def decrypt_image(update, context):
 
     # Send the decrypted image
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
+
 
 
 def main():
