@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from config import MONGODB_URI, MONGODB_NAME
 
+
 class Database:
     def __init__(self):
         self.client = MongoClient(MONGODB_URI)
@@ -21,3 +22,8 @@ class Database:
 
     def drop_database(self):
         self.client.drop_database(self.db.name)
+
+    def get_images_from_batch(self, batch_id):
+        collection = self.db['images']
+        images = collection.find({'batch_id': batch_id})
+        return images
