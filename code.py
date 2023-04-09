@@ -38,12 +38,9 @@ def en_command_handler(update, context):
     db = Database()
     db.insert_document("images", {"_id": image_id, "file_id": update.message.reply_to_message.photo[-1].file_id})
 
-    # Send the image to the user
-    photo_message = context.bot.send_photo(chat_id=update.effective_chat.id, photo=update.message.reply_to_message.photo[-1].file_id)
-
     # Send a reply to the user with the ID and image
-    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your image ID is {image_id}.")
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', 'rb'))
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', 'rb'), caption=f"Your image ID is `<code>{image_id}</code>`", parse_mode='HTML')
+
 
     # Add the message ID of the photo to the database
     db.update_document("images", {"_id": image_id}, {"$set": {"photo_message_id": photo_message.message_id}})
