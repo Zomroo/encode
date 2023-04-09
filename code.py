@@ -25,6 +25,12 @@ def en_command_handler(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Please reply with an image.")
         return
 
+    # Check if the image size is above 5MB
+    file_size = update.message.reply_to_message.photo[-1].file_size
+    if file_size > 5242880:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, images above 5MB are not supported.")
+        return
+
     # Generate a unique ID for the image
     image_id = str(uuid.uuid4())[:7]
 
@@ -37,6 +43,7 @@ def en_command_handler(update, context):
 
     # Send a reply to the user with the ID
     context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your image ID is {image_id}.")
+
 
 
 
