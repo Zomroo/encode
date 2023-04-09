@@ -1,8 +1,8 @@
 import schedule
 import time
 
-from code import app
-from database import Database
+from encode.code import app
+from encode.database import Database
 
 
 def reset_database():
@@ -13,7 +13,7 @@ def reset_database():
 
 if __name__ == "__main__":
     # start the bot
-    app.run()
+    app.start()
 
     # schedule the database reset
     schedule.every().day.at("00:00").do(reset_database)
