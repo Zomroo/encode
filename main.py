@@ -20,7 +20,7 @@ def encrypt_image(update, context):
 
     # Download the image
     file = context.bot.get_file(file_id)
-    img = Image.open(file.download_as_bytearray())
+    img = Image.open(file)
 
     # Get the dimensions of the image
     width, height = img.size
