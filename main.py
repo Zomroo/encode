@@ -85,4 +85,4 @@ def decrypt_image(message):
         bot.reply_to(message, "Error: " + str(e))
 
 
-    bot.polling()
+bot.polling()
