@@ -4,6 +4,7 @@ import time
 from code import updater
 from reset import reset_handler
 from batch import batch_command_handler, done_command_handler, image_handler
+from telegram.ext import CommandHandler
 from database import Database
 
 def reset_database():
