@@ -41,12 +41,6 @@ def en_command_handler(update, context):
     # Send a reply to the user with the ID and image
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', 'rb'), caption=f"Your image ID is `<code>{image_id}</code>`", parse_mode='HTML')
 
-    # Add the message ID of the photo to the database
-    photo_message = context.bot.send_photo(chat_id=update.effective_chat.id, photo=update.message.reply_to_message.photo[-1].file_id)
-    db.update_document("images", {"_id": image_id}, {"$set": {"photo_message_id": photo_message.message_id}})
-
-
-
 # Define the dy command handler
 def dy_command_handler(update, context):
     # Ask the user for the image ID
