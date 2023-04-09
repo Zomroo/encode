@@ -6,8 +6,8 @@ from PIL import Image
 
 # Enter your Telegram API credentials below
 api_id = 16844842
-api_hash = f6b0ceec5535804be7a56ac71d08a5d4
-bot_token = 5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk
+api_hash = 'f6b0ceec5535804be7a56ac71d08a5d4'
+bot_token = '5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk'
 
 # Create a Pyrogram client instance
 app = Client("image_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
