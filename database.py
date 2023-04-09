@@ -18,3 +18,6 @@ class Database:
         collection = self.db[collection_name]
         result = collection.update_one(filter, update)
         return result
+
+    def drop_database(self):
+        self.client.drop_database(self.db.name)
