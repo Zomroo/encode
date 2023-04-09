@@ -5,7 +5,7 @@ import random
 import io
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from Crypto.Util.Padding import pad, unpad, PKCS7
+from Crypto.Util.Padding import PKCS7
 
 # Change the following key to your own secret key
 KEY = b'mysecretpassword'
