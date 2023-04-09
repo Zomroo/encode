@@ -80,12 +80,14 @@ def decrypt_image(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Error: Image contains invalid pixel values and cannot be decrypted.")
         return
 
-    # Reverse the order of the pixels to get the original pixel values
-    original_pixels = list(reversed(pixels))
+    # Get the original positions of the pixels in the encrypted image
+    original_positions = [p[1] for p in pixels]
 
-    # Get the original position of each pixel in the shuffled list
-    original_positions = [p[1] for p in pixels if max(p) <= 255 and min(p) >= 0]
-    original_pixels = [original_pixels[i] for i in original_positions]
+    # Sort the pixels based on their original position
+    pixels.sort(key=lambda p: original_positions.index(p[1]))
+
+    # Get the original pixel values
+    original_pixels = [p[0] for p in pixels]
 
     # Create a new image with the same dimensions and the decrypted pixel values
     decrypted_img = Image.new('RGB', (width, height))
