@@ -39,21 +39,13 @@ def dy_command_handler(_, message: Message):
     # ask the user for the image ID
     message.reply_text("Please enter the image ID:")
 
-    # start the conversation handler
-    conv_handler = ConversationHandler(
-        entry_points=[message],
-        states={
-            "image_id": [MessageHandler(callback=handle_image_id)]
-        },
-        fallbacks=[],
-        allow_reentry=True
-    )
-    app.add_handler(conv_handler)
+    # start the callback handler
+    app.register_callback_query_handler(callback_handler, filters.regex(r'^\w{7}$'))
 
 
-def handle_image_id(_, message: Message):
-    # get the image ID from the user's message
-    image_id = message.text.strip()
+def callback_handler(client, callback_query: CallbackQuery):
+    # get the image ID from the callback data
+    image_id = callback_query.data
 
     # look up the image in MongoDB
     db = Database()
@@ -61,14 +53,14 @@ def handle_image_id(_, message: Message):
 
     # check if the image exists
     if not image:
-        message.reply_text("Image not found.")
+        client.answer_callback_query(callback_query.id, text="Image not found.")
         return
 
     # send the image to the user
-    app.send_photo(chat_id=message.chat.id, photo=image["file_id"])
+    client.send_photo(chat_id=callback_query.message.chat.id, photo=image["file_id"])
 
     # end the conversation
-    return ConversationHandler.END
+    client.answer_callback_query(callback_query.id, text="Here is your image.")
 
 
 if __name__ == "__main__":
