@@ -80,6 +80,10 @@ dispatcher.add_handler(en_handler)
 dispatcher.add_handler(dy_handler)
 
 
+def get_handlers():
+    return [start_handler, en_handler, dy_handler]
+
+
 if __name__ == "__main__":
     # Start the bot
     updater.start_polling()
