@@ -66,9 +66,8 @@ def decrypt_image(update, context):
     # Get the pixel values of the encrypted image
     pixels = list(img.getdata())
 
-    # Make a copy of the pixel values and shuffle the copy to get the original pixel values
-    original_pixels = pixels.copy()
-    random.shuffle(original_pixels)
+    # Reverse the order of the pixels to get the original pixel values
+    original_pixels = list(reversed(pixels))
 
     # Create a new image with the same dimensions and the decrypted pixel values
     decrypted_img = Image.new('RGB', (width, height))
