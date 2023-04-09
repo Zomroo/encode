@@ -9,6 +9,15 @@ def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
     print("Database reset.")
+    
+    
+    
+    # Define the /batch command handler	
+    batch_handler = CommandHandler("batch", batch_command_handler)	
+    dispatcher.add_handler(batch_handler)	
+    dispatcher.add_handler(CommandHandler('done', done_command_handler))		
+    dispatcher.add_handler(MessageHandler(Filters.photo, image_handler))
+    
 
 if __name__ == "__main__":
     # start the bot
