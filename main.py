@@ -4,7 +4,7 @@ from PIL import Image
 import random
 import io
 
-TOKEN = 'YOUR_BOT_TOKEN'
+TOKEN = '5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk'
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm a bot that can encrypt images. To encrypt an image, send me an image and use the /en command.")
