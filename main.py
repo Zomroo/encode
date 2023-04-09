@@ -42,8 +42,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler("dy", code.dy_command_handler))
 
 
-    dispatcher.add_handler(CommandHandler('done', done_command_handler))	
-    dispatcher.add_handler(CommandHandler('dy', dy_command_handler))	
+    dispatcher.add_handler(CommandHandler('done', done_command_handler))		
     dispatcher.add_handler(MessageHandler(Filters.photo, image_handler))
     
     # For Code.py
