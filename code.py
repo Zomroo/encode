@@ -3,7 +3,7 @@ import re
 import uuid
 
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
 from config import BOT_TOKEN
 from database import Database
@@ -40,12 +40,12 @@ def dy_command_handler(_, message: Message):
     message.reply_text("Please enter the image ID:")
 
     # set the next handler to get the image ID from the user
-    app.register_callback_query_handler(handle_image_id)
+    app.add_handler("callback_query", handle_image_id)
 
 
-def handle_image_id(_, callback_query):
-    # get the image ID from the user's message
-    image_id = callback_query.message.text.strip()
+def handle_image_id(_, callback_query: CallbackQuery):
+    # get the image ID from the callback query data
+    image_id = callback_query.data.strip()
 
     # check if the image ID is valid
     if not re.match(r"^[a-zA-Z0-9]{7}$", image_id):
