@@ -90,6 +90,7 @@ def decrypt_image(update, context):
  
 
 def main():
+    print("Starting bot...")
     # Create the Updater and pass it the bot's token
     updater = Updater(TOKEN, use_context=True)
 
@@ -99,4 +100,9 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('dy', decrypt_image))
 
     # Start the bot
-    updater.start_polling()
+    try:
+        updater.start_polling()
+    except Exception as e:
+        print(f"Error starting bot: {e}")
+
+print("Bot started.")
