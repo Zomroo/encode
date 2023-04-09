@@ -38,8 +38,6 @@ class Database:
                 'file_id': image.file_id,
                 'file_size': image.file_size,
                 'file_unique_id': image.file_unique_id,
-                'width': image.width,
-                'height': image.height,
                 'file_name': image.file_name,
                 'mime_type': image.mime_type
             })
