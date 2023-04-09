@@ -47,6 +47,8 @@ async def decode_command_handler(client: Client, message: Message):
         await message.reply_photo(photo=decoded_image_bytes_io)
 
 
+# Encode command handler
+@app.on_message(filters.command("encode") | filters.command("en"))
 async def encode_command_handler(client: Client, message: Message):
     # Get the photo from the message
     photo = message.reply_to_message.photo.file_id
@@ -73,9 +75,6 @@ async def encode_command_handler(client: Client, message: Message):
 
     # Send the encoded image
     await message.reply_photo(photo=encoded_image_bytes_io)
-
-
-
 
 
 # Start the Pyrogram client
