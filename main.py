@@ -38,10 +38,9 @@ def en_command(client, message):
             im = im.convert("L")
             reversed_im = reverse_pixels(im)
             reversed_im.save(image_path)
-            message.reply_to_message.reply_photo(photo)
+            message.reply_to_message.reply_photo(photo=image_path)
     else:
         message.reply_text("Please reply to an image with this command.")
-
 
 @app.on_message(filters.command("dy"))
 def dy_command(client, message):
@@ -53,7 +52,7 @@ def dy_command(client, message):
             im = im.convert("L")
             inverse_im = inverse_pixels(im)
             inverse_im.save(image_path)
-            message.reply_to_message.reply_photo(photo)
+            message.reply_to_message.reply_photo(photo=image_path)
     else:
         message.reply_text("Please reply to an image with this command.")
 
