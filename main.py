@@ -10,13 +10,13 @@ def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm a bot that can encrypt images. To encrypt an image, send me an image and use the /en command.")
 
 def encrypt_image(update, context):
-    # Check if the message contains an image
-    if not update.message.photo:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Please send an image to encrypt.")
+    # Check if the message is a reply and contains an image
+    if not update.message.reply_to_message or not update.message.reply_to_message.photo:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Please reply to an image message with /en to encrypt.")
         return
 
-    # Get the file ID of the largest version of the photo
-    file_id = update.message.photo[-1].file_id
+    # Get the file ID of the largest version of the photo in the replied message
+    file_id = update.message.reply_to_message.photo[-1].file_id
 
     # Download the image
     file = context.bot.get_file(file_id)
