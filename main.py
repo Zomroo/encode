@@ -4,6 +4,7 @@ import time
 from telegram.ext import Updater, CommandHandler
 from database import Database
 from config import BOT_TOKEN
+from code import get_handlers
 
 # Create an Updater object and pass in the bot's token
 updater = Updater(token=BOT_TOKEN, use_context=True)
@@ -30,6 +31,10 @@ schedule.every().day.at("00:00").do(reset_database)
 if __name__ == "__main__":
     # Start the main bot
     updater.start_polling()
+
+    # Add the handlers from code.py to the main bot
+    for handler in get_handlers():
+        dispatcher.add_handler(handler)
 
     while True:
         schedule.run_pending()
