@@ -98,7 +98,7 @@ def decrypt_image(client, message):
 
         # Loop through the shuffled pixel coordinates and copy the corresponding pixel from the scrambled image to the decrypted image
         for i, (x, y) in enumerate(pixels):
-        decrypted_img.putpixel(pixels[i], img.getpixel((x, y)))
+            decrypted_img.putpixel(pixels[i], img.getpixel((x, y)))
 
     # Save the decrypted image to a buffer
     buffer = BytesIO()
