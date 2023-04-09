@@ -14,6 +14,11 @@ dispatcher = updater.dispatcher
 
 
 
+def dy_command_handler(update, context):
+    # your code for handling the /dy command here
+    pass
+
+
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
