@@ -11,7 +11,6 @@ bot = telebot.TeleBot(TOKEN)
 def send_welcome(message):
     bot.reply_to(message, "Welcome to the image encryption and decryption bot! Send me a photo and use the /en command to encrypt it, or use the /dy command followed by an encrypted photo to decrypt it.")
 
-# Handler for the /en command
 @bot.message_handler(commands=['en'])
 def encrypt_image(message):
     try:
@@ -31,7 +30,8 @@ def encrypt_image(message):
         pattern_flat = pattern.reshape(-1)
         encrypted_flat_arr = np.zeros_like(flat_arr)
         for i in range(h*w):
-            encrypted_flat_arr[i] = flat_arr[i][pattern_flat[i % 16]] # Shuffle the pixels according to the pattern
+            if i < len(pattern_flat) and i < len(flat_arr): # Check that the indices are within bounds
+                encrypted_flat_arr[i] = flat_arr[i][pattern_flat[i % 16]] # Shuffle the pixels according to the pattern
         encrypted_arr = encrypted_flat_arr.reshape(h, w, c)
         encrypted_img = Image.fromarray(encrypted_arr)
         
@@ -67,8 +67,8 @@ def decrypt_image(message):
         decrypted_flat_arr = np.zeros_like(flat_arr)
         for i in range(h*w):
             new_i, new_j = np.unravel_index(i, (h, w)) # Get the original indices of the pixel
-            new_i = int(pattern[new_i % 4, new_j % 4] / 4) * 4 + int(new_i / 4) # Convert the indices in the pattern to the original indices
-            new_j = int(pattern[new_i % 4, new_j % 4] % 4) * 4 + int(new_j / 4)
+            new_i = int(pattern[new_i // 4, new_j // 4] * 4 + new_i % 4) # Convert the indices in the pattern to the original indices
+            new_j = int(pattern[new_i // 4, new_j // 4] % 4 * 4 + new_j % 4)
             decrypted_flat_arr[new_i*w+new_j] = flat_arr[i] # Copy the pixel value to its new position in the decrypted image
         
         arr = decrypted_flat_arr.reshape(h, w, c)
@@ -81,6 +81,7 @@ def decrypt_image(message):
         bot.send_photo(message.chat.id, photo=buffered)
     except Exception as e:
         bot.reply_to(message, "Error: " + str(e))
+
 
 
 
