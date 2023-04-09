@@ -8,6 +8,9 @@ from batch import batch_command_handler, done_command_handler, image_handler
 from telegram.ext import CommandHandler
 from database import Database
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, Dispatcher
+from code import start_handler, en_handler, dy_handler
+
+
 
 updater = Updater(token=config.BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
@@ -38,6 +41,12 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('done', done_command_handler))	
     dispatcher.add_handler(CommandHandler('dy', dy_command_handler))	
     dispatcher.add_handler(MessageHandler(Filters.photo, image_handler))
+    
+    # For Code.py
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(en_handler)
+    dispatcher.add_handler(dy_handler)
+  
 
     # add the reset command handler
     updater.dispatcher.add_handler(reset_handler)
