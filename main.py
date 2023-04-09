@@ -1,73 +1,80 @@
-import os
-import logging
+from pyrogram import Client, filters
+from pyrogram.types import Message
+import base64
 from io import BytesIO
-from telegram import Update, ForceReply, InputMediaPhoto
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from PIL import Image
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# Enter your Telegram API credentials below
+api_id = 16844842
+api_hash = f6b0ceec5535804be7a56ac71d08a5d4
+bot_token = 5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk
 
-logger = logging.getLogger(__name__)
+# Create a Pyrogram client instance
+app = Client("image_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-def start(update: Update, _: CallbackContext) -> None:
-    """Send a message when the command /start is issued."""
-    if update.message:
-        update.message.reply_text('Hi! I can decode and encode images. Send me an image and use the commands /decode or /encode to perform the respective action.')
-    else:
-        logger.warning('Received an update without a message.')
+# Start command handler
+@app.on_message(filters.command("start"))
+def start_command_handler(client: Client, message: Message):
+    response_text = "Hi! I can decode and encode images for you. Send me an image and use the /decode or /encode command to get the results."
+    message.reply_text(response_text)
 
+# Decode command handler
+@app.on_message(filters.command("decode") | filters.command("de"))
+def decode_command_handler(client: Client, message: Message):
+    # Get the photo from the message
+    photo = message.reply_to_message.photo.file_id
 
-def decode_image(update: Update, _: CallbackContext) -> None:
-    """Decode the image and send the decoded image."""
-    # Get the photo file id
-    photo_id = update.message.photo[-1].file_id
-    # Download the photo file
-    photo_file = BytesIO()
-    update.message.bot.get_file(photo_id).download(out=photo_file)
+    # Get the photo file from Telegram
+    file = client.get_file(photo)
+
+    # Get the bytes from the photo file
+    photo_bytes = BytesIO(file.download_as_bytearray())
+
+    # Load the image from the bytes
+    image = Image.open(photo_bytes)
+
     # Decode the image
-    image = Image.open(photo_file)
-    image = image.convert('RGB')
-    data = image.tobytes()
+    decoded_image_bytes = base64.b64decode(image.getdata())
+
+    # Create a new image from the decoded bytes
+    decoded_image = Image.frombytes(image.mode, image.size, decoded_image_bytes)
+
+    # Save the decoded image as bytes
+    decoded_image_bytes_io = BytesIO()
+    decoded_image.save(decoded_image_bytes_io, format="PNG")
+    decoded_image_bytes_io.seek(0)
+
     # Send the decoded image
-    update.message.reply_photo(photo=data)
+    message.reply_photo(photo=decoded_image_bytes_io)
 
-def encode_image(update: Update, _: CallbackContext) -> None:
-    """Encode the decoded image and send the encoded image."""
-    # Get the photo file id
-    photo_id = update.message.photo[-1].file_id
-    # Download the photo file
-    photo_file = BytesIO()
-    update.message.bot.get_file(photo_id).download(out=photo_file)
-    # Decode the image
-    image = Image.open(photo_file)
-    image = image.convert('RGB')
-    data = image.tobytes()
+# Encode command handler
+@app.on_message(filters.command("encode") | filters.command("en"))
+def encode_command_handler(client: Client, message: Message):
+    # Get the photo from the message
+    photo = message.reply_to_message.photo.file_id
+
+    # Get the photo file from Telegram
+    file = client.get_file(photo)
+
+    # Get the bytes from the photo file
+    photo_bytes = BytesIO(file.download_as_bytearray())
+
+    # Load the image from the bytes
+    image = Image.open(photo_bytes)
+
     # Encode the image
-    image = Image.frombytes('RGB', image.size, data)
-    buffer = BytesIO()
-    image.save(buffer, format='JPEG')
+    encoded_image_bytes = base64.b64encode(image.tobytes())
+
+    # Create a new image from the encoded bytes
+    encoded_image = Image.frombytes(image.mode, image.size, encoded_image_bytes)
+
+    # Save the encoded image as bytes
+    encoded_image_bytes_io = BytesIO()
+    encoded_image.save(encoded_image_bytes_io, format="PNG")
+    encoded_image_bytes_io.seek(0)
+
     # Send the encoded image
-    update.message.reply_photo(photo=buffer.getvalue())
+    message.reply_photo(photo=encoded_image_bytes_io)
 
-def main() -> None:
-    """Start the bot."""
-    # Create the Updater and pass it the bot's token
-    updater = Updater("5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk")
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
-
-    # Add handlers for commands and messages
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("decode", decode_image))
-    dispatcher.add_handler(CommandHandler("en", encode_image))
-
-    # Start the bot
-    updater.start_polling()
-
-    # Run the bot until the user presses Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
+# Start the Pyrogram client
+app.run()
