@@ -1,6 +1,7 @@
 import schedule
 import time
 
+from telegram.ext import CommandHandler
 from code import updater
 from batch import batch_command_handler
 from reset import reset_handler
