@@ -1,98 +1,73 @@
-import logging
-import os
-import tempfile
-import imghdr
-
-from io import BytesIO
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import numpy as np
+import telebot
 from PIL import Image
+from io import BytesIO
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+TOKEN = '5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk'
+bot = telebot.TeleBot(TOKEN)
 
-logger = logging.getLogger(__name__)
+# Handler for the /start command
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "Welcome to the image encryption and decryption bot! Send me a photo and use the /en command to encrypt it, or use the /dy command followed by an encrypted photo to decrypt it.")
 
-def start(update: Update, context: CallbackContext) -> None:
-    if update.message:
-        update.message.reply_text('Hi! Send me an image and I will encrypt it.')
-    else:
-        logger.warning('Received update without message: %s', update)
-
-def encrypt_image(update: Update, context: CallbackContext) -> None:
+# Handler for the /en command
+@bot.message_handler(commands=['en'])
+def encrypt_image(message):
     try:
-        # Get the image file
-        file = update.message.photo[-1].get_file()
-
-        # Check if the file is an image
-        if imghdr.what(file) is None:
-            update.message.reply_text('Invalid image file.')
-            return
-
-        # Read the image file into memory
-        img_data = file.download_as_bytearray()
-
-        # Encrypt the image data
-        key = os.urandom(1)[0]  # Generate a random key
-        encrypted_data = bytearray([b ^ key for b in img_data])
-
-        # Send the encrypted image back to the user
-        file = BytesIO(encrypted_data)
-        file.name = 'encrypted.jpg'
-        update.message.reply_photo(photo=file, caption=f'Encryption key: {key}')
-
+        # Get the photo from the message
+        photo = message.reply_to_message.photo[-1].file_id
+        file_info = bot.get_file(photo)
+        downloaded_file = bot.download_file(file_info.file_path)
+        
+        # Convert the downloaded file to an image
+        img = Image.open(BytesIO(downloaded_file))
+        arr = np.array(img)
+        
+        # Encrypt the image by shuffling the pixels
+        h, w, c = arr.shape
+        flat_arr = arr.reshape(-1, c)
+        np.random.shuffle(flat_arr)
+        arr = flat_arr.reshape(h, w, c)
+        encrypted_img = Image.fromarray(arr)
+        
+        # Send the encrypted image to the user
+        buffered = BytesIO()
+        encrypted_img.save(buffered, format="JPEG")
+        buffered.seek(0)
+        bot.send_photo(message.chat.id, photo=buffered)
     except Exception as e:
-        logger.error(str(e))
-        update.message.reply_text('An error occurred while encrypting the image.')
+        bot.reply_to(message, "Error: " + str(e))
 
-def decrypt_image(update: Update, context: CallbackContext) -> None:
+# Handler for the /dy command
+@bot.message_handler(commands=['dy'])
+def decrypt_image(message):
     try:
-        # Get the image file
-        file = update.message.photo[-1].get_file()
-
-        # Check if the file is an image
-        if imghdr.what(file) is None:
-            update.message.reply_text('Invalid image file.')
-            return
-
-        # Read the image file into memory
-        img_data = file.download_as_bytearray()
-
-        # Get the encryption key
-        key = int(update.message.reply_to_message.caption.split(':')[-1])
-
-        # Decrypt the image data
-        decrypted_data = bytearray([b ^ key for b in img_data])
-
-        # Send the decrypted image back to the user
-        with tempfile.NamedTemporaryFile(suffix='.jpg') as temp:
-            temp.write(decrypted_data)
-            temp.flush()
-            update.message.reply_photo(photo=open(temp.name, 'rb'))
-
+        # Get the photo from the message
+        photo = message.reply_to_message.photo[-1].file_id
+        file_info = bot.get_file(photo)
+        downloaded_file = bot.download_file(file_info.file_path)
+        
+        # Convert the downloaded file to an image
+        encrypted_img = Image.open(BytesIO(downloaded_file))
+        arr = np.array(encrypted_img)
+        
+        # Decrypt the image by unshuffling the pixels
+        h, w, c = arr.shape
+        flat_arr = arr.reshape(-1, c)
+        np.random.seed(123) # Use the same random seed as the encryption algorithm
+        unshuffled_arr = np.zeros_like(flat_arr)
+        for i, j in enumerate(np.argsort(np.random.random(len(flat_arr)))):
+            unshuffled_arr[j] = flat_arr[i]
+        arr = unshuffled_arr.reshape(h, w, c)
+        decrypted_img = Image.fromarray(arr)
+        
+        # Send the decrypted image to the user
+        buffered = BytesIO()
+        decrypted_img.save(buffered, format="JPEG")
+        buffered.seek(0)
+        bot.send_photo(message.chat.id, photo=buffered)
     except Exception as e:
-        logger.error(str(e))
-        update.message.reply_text('An error occurred while decrypting the image.')
+        bot.reply_to(message, "Error: " + str(e))
 
-def main() -> None:
-    # Create the Updater and pass it your bot's token.
-    updater = Updater('5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk')
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
-
-    # Add command handlers
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(MessageHandler(Filters.photo & Filters.reply & Filters.regex('^en$'), encrypt_image))
-    dispatcher.add_handler(MessageHandler(Filters.photo & Filters.reply & Filters.regex('^dy$'), decrypt_image))
-
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
-
-
-if __name__ == '__main__':
-    main()
+bot.polling()
