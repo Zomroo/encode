@@ -73,12 +73,12 @@ def done_command_handler(update, context):
     # Let the user know the images have been saved and provide the batch ID
     context.bot.send_message(chat_id=update.effective_chat.id, 
                              text=f"Images saved with batch ID {batch_id}.\n"
-                                  f"Type /dy {batch_id} to get the images.")
+                                  f"Type /dby {batch_id} to get the images.")
 
     return
 
-# Define a function to handle the /dy command
-def dy_command_handler(update, context):
+# Define a function to handle the /dby command
+def dby_command_handler(update, context):
     # Parse the batch ID from the command
     try:
         batch_id = context.args[0]
