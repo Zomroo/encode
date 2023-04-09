@@ -6,6 +6,12 @@ from reset import reset_handler
 from batch import batch_command_handler, done_command_handler, image_handler
 from telegram.ext import CommandHandler
 from database import Database
+from telegram.ext import Updater
+
+updater = Updater(token=config.BOT_TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+
+
 
 def reset_database():
     db = Database()
