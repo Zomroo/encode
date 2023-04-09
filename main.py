@@ -5,7 +5,6 @@ import random
 import io
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from Crypto.Util.Padding import PKCS7
 
 # Change the following key to your own secret key
 KEY = b'mysecretpassword'
@@ -74,7 +73,7 @@ def decrypt_image(update, context):
     padded_img_data = cipher.decrypt(encrypted_img_data)
 
     # Unpad the decrypted image
-    unpadder = PKCS7(AES.block_size).unpadder()
+    unpadder = unpad(bytes(padded_img_data), AES.block_size)
     img_data = unpadder.update(padded_img_data) + unpadder.finalize()
 
     # Create a new image with the same dimensions and the decrypted pixel values
