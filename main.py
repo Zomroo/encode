@@ -1,6 +1,7 @@
 import schedule
 import time
 import config
+import code
 
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram.ext import Updater
