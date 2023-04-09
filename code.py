@@ -39,11 +39,11 @@ def dy_command_handler(_, message: Message):
     # ask the user for the image ID
     message.reply_text("Please enter the image ID:")
 
-    # set the next handler to get the image ID from the user
-    app.register_next_step_handler(message, handle_image_id)
+    # start the conversation handler
+    app.conversation("image_id", message.chat.id, message.message_id, handle_image_id)
 
 
-def handle_image_id(message: Message):
+def handle_image_id(client, message):
     # get the image ID from the user's message
     image_id = message.text.strip()
 
@@ -57,7 +57,10 @@ def handle_image_id(message: Message):
         return
 
     # send the image to the user
-    app.send_photo(chat_id=message.chat.id, photo=image["file_id"])
+    client.send_photo(chat_id=message.chat.id, photo=image["file_id"])
+
+    # end the conversation
+    return ConversationHandler.END
 
 
 if __name__ == "__main__":
