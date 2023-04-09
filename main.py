@@ -37,6 +37,8 @@ if __name__ == "__main__":
     # Define the /batch command handler	
     batch_handler = CommandHandler("batch", batch_command_handler)	
     dispatcher.add_handler(batch_handler)	
+    dispatcher.add_handler(CommandHandler("dy", code.dy_command_handler))
+
 
     dispatcher.add_handler(CommandHandler('done', done_command_handler))	
     dispatcher.add_handler(CommandHandler('dy', dy_command_handler))	
