@@ -2,6 +2,7 @@ import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from PIL import Image
 import random
+import io
 
 TOKEN = '5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk'
 
