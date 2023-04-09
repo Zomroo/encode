@@ -56,17 +56,18 @@ def dy_command_handler(update, context):
 
         # Check if the image exists
         if not image:
-            context.bot.send_message(chat_id=update.effective_chat.id, text="Image not found.")
+            context.bot.send_message(chat_id=update.effective_chat.id, text="Image not found. Please enter a valid image ID.")
             return
 
         # Send the image to the user
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=image["file_id"])
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo=image["file_id"], caption=f"Image ID: <code>{image_id}</code>", parse_mode='HTML')
 
         # End the conversation
         updater.dispatcher.remove_handler(message_handler)
 
     message_handler = MessageHandler(Filters.text & (~Filters.command), message_handler)
     updater.dispatcher.add_handler(message_handler)
+
 
 
 # Add handlers for the start, en and dy commands
