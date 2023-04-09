@@ -1,6 +1,7 @@
 import schedule
 import time
 
+from code import get_handlers
 from telegram.ext import Updater, CommandHandler
 from database import Database
 from config import BOT_TOKEN
