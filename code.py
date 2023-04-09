@@ -31,7 +31,7 @@ def en_command_handler(_, message: Message):
     db.insert_document("images", {"_id": image_id, "file_id": message.reply_to_message.photo.file_id})
 
     # send a reply to the user with the ID
-    message.reply_photo(photo="/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg", caption=f"Your image ID is {image_id}.")
+    message.reply_photo(photo=message.reply_to_message.photo.file_id, caption=f"Your image ID is {image_id}.")
 
 
 @app.on_message(filters.command("dy"))
@@ -40,16 +40,16 @@ def dy_command_handler(_, message: Message):
     message.reply_text("Please enter the image ID:")
 
     # set the next handler to get the image ID from the user
-    app.set_callback_data_handler(handle_image_id)
+    app.register_callback_query_handler(handle_image_id)
 
 
-def handle_image_id(_, message: Message):
+def handle_image_id(_, callback_query):
     # get the image ID from the user's message
-    image_id = message.text.strip()
+    image_id = callback_query.message.text.strip()
 
     # check if the image ID is valid
     if not re.match(r"^[a-zA-Z0-9]{7}$", image_id):
-        message.reply_text("Invalid image ID.")
+        callback_query.answer(text="Invalid image ID.")
         return
 
     # look up the image in MongoDB
@@ -58,11 +58,11 @@ def handle_image_id(_, message: Message):
 
     # check if the image exists
     if not image:
-        message.reply_text("Image not found.")
+        callback_query.answer(text="Image not found.")
         return
 
     # send the image to the user
-    message.reply_photo(photo=image["file_id"])
+    callback_query.message.reply_photo(photo=image["file_id"])
 
 
 if __name__ == "__main__":
