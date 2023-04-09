@@ -5,8 +5,8 @@ import config
 
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram.ext import Updater
-from code import updater
 from batch import batch_command_handler, done_command_handler, dy_command_handler, image_handler
+from code import start_command_handler, en_command_handler, dy_command_handler
 from reset import reset_handler
 from database import Database
 
