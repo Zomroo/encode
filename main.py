@@ -92,7 +92,9 @@ def decrypt_image(update, context):
     updater.dispatcher.add_handler(CommandHandler('en', encrypt_image))
     updater.dispatcher.add_handler(CommandHandler('dy', decrypt_image))
 
+    # Start the bot
     updater.start_polling()
     updater.idle()
 
 if __name__ == '__main__':
+    main()
