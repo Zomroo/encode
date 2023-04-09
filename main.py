@@ -48,6 +48,7 @@ async def decode_command_handler(client: Client, message: Message):
 
 
 # Encode command handler
+@app.on_message(filters.command("encode") | filters.command("en"))
 async def encode_command_handler(client: Client, message: Message):
     # Get the photo from the message
     photo = message.reply_to_message.photo.file_id
