@@ -1,7 +1,7 @@
 import schedule
 import time
 
-from code import app
+from code import updater
 from database import Database
 
 
@@ -13,7 +13,7 @@ def reset_database():
 
 if __name__ == "__main__":
     # start the bot
-    app.start()
+    updater.start_polling()
 
     # schedule the database reset
     schedule.every().day.at("00:00").do(reset_database)
