@@ -47,19 +47,18 @@ async def decode_command_handler(client: Client, message: Message):
         await message.reply_photo(photo=decoded_image_bytes_io)
 
 
-@app.on_message(filters.command("encode") | filters.command("en"))
 async def encode_command_handler(client: Client, message: Message):
     # Get the photo from the message
     photo = message.reply_to_message.photo.file_id
 
-    # Get the file information using get_file method
-    file_info = await client.get_file(photo)
+    # Get the photo file from Telegram
+    photo_file = await client.get_file(photo)
 
-    # Download the file
-    file_bytes = await client.download_media(file_info)
+    # Get the bytes from the photo file
+    photo_bytes = BytesIO(await client.download_media(photo_file))
 
     # Load the image from the bytes
-    image = Image.open(BytesIO(file_bytes))
+    image = Image.open(photo_bytes)
 
     # Encode the image
     encoded_image_bytes = base64.b64encode(image.tobytes())
@@ -74,6 +73,7 @@ async def encode_command_handler(client: Client, message: Message):
 
     # Send the encoded image
     await message.reply_photo(photo=encoded_image_bytes_io)
+
 
 
 
