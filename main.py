@@ -32,9 +32,8 @@ def start_command(client, message):
 def en_command(client, message):
     """Handles the /en command"""
     if message.reply_to_message and message.reply_to_message.photo:
-        photo = message.reply_to_message.photo[-1]
-        file = photo.get_file()
-        image_path = file.download()
+        photo = message.reply_to_message.photo.file_id
+        image_path = client.download_media(photo)
         with Image.open(image_path) as im:
             im = im.convert("L")
             reversed_im = reverse_pixels(im)
@@ -48,9 +47,8 @@ def en_command(client, message):
 def dy_command(client, message):
     """Handles the /dy command"""
     if message.reply_to_message and message.reply_to_message.photo:
-        photo = message.reply_to_message.photo[-1]
-        file = photo.get_file()
-        image_path = file.download()
+        photo = message.reply_to_message.photo.file_id
+        image_path = client.download_media(photo)
         with Image.open(image_path) as im:
             im = im.convert("L")
             inverse_im = inverse_pixels(im)
