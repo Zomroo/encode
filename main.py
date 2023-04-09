@@ -3,6 +3,14 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from PIL import Image
 import random
 import io
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Util.Padding import PKCS7
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Util.Padding import pkcs7
+
+# Change the following key to your own secret key
+KEY = b'mysecretpassword'
 
 TOKEN = '5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk'
 
@@ -28,30 +36,23 @@ def encrypt_image(update, context):
     # Get the dimensions of the image
     width, height = img.size
 
-    # Encrypt the image by shuffling the pixel values
-    pixels = list(img.getdata())
-    random.shuffle(pixels)
+    # Convert the image to a byte stream
+    img_bytes = io.BytesIO()
+    img.save(img_bytes, format='JPEG')
+    img_bytes.seek(0)
 
-    # Save the shuffled pixels along with their original position
-    pixel_list = [(pixels[i], i) for i in range(len(pixels))]
+    # Pad the image bytes to be a multiple of the AES block size
+    padded_img_bytes = pad(img_bytes.read(), AES.block_size)
 
-    # Sort the pixel list based on the shuffled pixel values
-    pixel_list.sort()
+    # Generate a random initialization vector (IV)
+    iv = bytes([random.randint(0, 255) for i in range(AES.block_size)])
 
-    # Get the original position of each pixel in the shuffled list
-    original_positions = [p[1] for p in pixel_list]
-
-    # Create a new image with the same dimensions and the encrypted pixel values
-    encrypted_img = Image.new('RGB', (width, height))
-    encrypted_img.putdata([p[0] for p in pixel_list])
-
-    # Save the encrypted image to a buffer
-    buffer = io.BytesIO()
-    encrypted_img.save(buffer, format='JPEG')
-    buffer.seek(0)
+    # Encrypt the padded image bytes using AES in CBC mode with the IV and key
+    cipher = AES.new(KEY, AES.MODE_CBC, iv)
+    encrypted_img_bytes = iv + cipher.encrypt(padded_img_bytes)
 
     # Send the encrypted image
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=io.BytesIO(encrypted_img_bytes))
 
 def decrypt_image(update, context):
     # Check if the message is a reply and contains an image
@@ -64,50 +65,32 @@ def decrypt_image(update, context):
 
     # Download the image
     file = context.bot.get_file(file_id)
-    img_bytes = io.BytesIO(file.download_as_bytearray())
+    encrypted_img_bytes = io.BytesIO(file.download_as_bytearray()).read
 
-    # Open the image from the byte stream
-    img = Image.open(img_bytes)
+    # Get the initialization vector (IV) and encrypted image data from the byte stream
+    iv = encrypted_img_bytes[:AES.block_size]
+    encrypted_img_data = encrypted_img_bytes[AES.block_size:]
 
-    # Get the dimensions of the image
-    width, height = img.size
+    # Decrypt the image using AES in CBC mode
+    cipher = AES.new(KEY, AES.MODE_CBC, iv)
+    padded_img_data = cipher.decrypt(encrypted_img_data)
 
-    # Get the pixel values of the encrypted image
-    pixels = list(img.getdata())
-
-    # Check if any pixel values are out of range
-    if any(max(p) > 255 or min(p) < 0 for p in pixels):
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Error: Image contains invalid pixel values and cannot be decrypted.")
-        return
-
-    # Get the original positions of the pixels in the encrypted image
-    original_positions = [p[1] for p in pixels]
-
-    # Sort the pixels based on their original position
-    pixels.sort(key=lambda p: original_positions.index(p[1]))
-
-    # Get the original pixel values
-    original_pixels = [p[0] for p in pixels]
+    # Unpad the decrypted image
+    unpadder = PKCS7(AES.block_size).unpadder()
+    img_data = unpadder.update(padded_img_data) + unpadder.finalize()
 
     # Create a new image with the same dimensions and the decrypted pixel values
-    decrypted_img = Image.new('RGB', (width, height))
-    decrypted_img.putdata(original_pixels)
+    img = Image.open(io.BytesIO(img_data))
+    width, height = img.size
 
     # Save the decrypted image to a buffer
     buffer = io.BytesIO()
-    decrypted_img.save(buffer, format='JPEG')
+    img.save(buffer, format='JPEG')
     buffer.seek(0)
 
     # Send the decrypted image
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
-
-
-
-
-def main():
-    updater = Updater(TOKEN, use_context=True)
-
-    # Add handlers for the /start, /en, and /dy commands
+ # Add handlers for the /start, /en, and /dy commands
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('en', encrypt_image))
     updater.dispatcher.add_handler(CommandHandler('dy', decrypt_image))
@@ -117,3 +100,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
