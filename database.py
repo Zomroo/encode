@@ -27,3 +27,21 @@ class Database:
         collection = self.db['images']
         images = collection.find({'batch_id': batch_id})
         return images
+   
+
+    def add_images_to_batch(self, batch_id, images):
+    collection = self.db['images']
+    documents = []
+    for image in images:
+        documents.append({
+            'batch_id': batch_id,
+            'file_id': image.file_id,
+            'file_size': image.file_size,
+            'file_unique_id': image.file_unique_id,
+            'width': image.width,
+            'height': image.height,
+            'file_name': image.file_name,
+            'mime_type': image.mime_type
+        })
+    if len(documents) > 0:
+        collection.insert_many(documents)
