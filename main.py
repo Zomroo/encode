@@ -3,7 +3,7 @@ import time
 
 from code import updater
 from database import Database
-from reset import reset
+from reset import reset_database
 
 
 def reset_database():
