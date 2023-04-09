@@ -55,6 +55,17 @@ def decrypt_image(update, context):
 
     # Download the image
     file = context.bot.get_file(file_id)
+    img_bytes = io.BytesIOdef decrypt_image(update, context):
+    # Check if the message is a reply and contains an image
+    if not update.message.reply_to_message or not update.message.reply_to_message.photo:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Please reply to an image message with /dy to decrypt.")
+        return
+
+    # Get the file ID of the largest version of the photo in the replied message
+    file_id = update.message.reply_to_message.photo[-1].file_id
+
+    # Download the image
+    file = context.bot.get_file(file_id)
     img_bytes = io.BytesIO(file.download_as_bytearray())
 
     # Open the image from the byte stream
@@ -63,13 +74,16 @@ def decrypt_image(update, context):
     # Get the dimensions of the image
     width, height = img.size
 
-    # Decrypt the image by unshuffling the pixel values
+    # Get the pixel values of the encrypted image
     pixels = list(img.getdata())
-    random.shuffle(pixels)  # Unshuffle the pixels to get the original image
+
+    # Make a copy of the pixel values and shuffle the copy to get the original pixel values
+    original_pixels = pixels.copy()
+    random.shuffle(original_pixels)
 
     # Create a new image with the same dimensions and the decrypted pixel values
     decrypted_img = Image.new('RGB', (width, height))
-    decrypted_img.putdata(pixels)
+    decrypted_img.putdata(original_pixels)
 
     # Save the decrypted image to a buffer
     buffer = io.BytesIO()
@@ -78,6 +92,7 @@ def decrypt_image(update, context):
 
     # Send the decrypted image
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
+
 
 def main():
     updater = Updater(TOKEN, use_context=True)
