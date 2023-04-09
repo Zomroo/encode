@@ -1,71 +1,90 @@
-import telegram
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import logging
+import os
+import tempfile
+import imghdr
+
 from io import BytesIO
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from PIL import Image
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to the Image Encryption Bot!")
+logger = logging.getLogger(__name__)
 
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Hi! Send me an image and I will encrypt it.')
 
-def encrypt_image(update, context):
-    # Check if the reply message is an image
-    if update.message.reply_to_message.photo:
-        # Get the image file_id
-        file_id = update.message.reply_to_message.photo[-1].file_id
-        # Get the image file object
-        file_obj = context.bot.get_file(file_id)
-        # Download the image data
-        img_bytes = file_obj.download_as_bytearray()
+def encrypt_image(update: Update, context: CallbackContext) -> None:
+    try:
+        # Get the image file
+        file = update.message.photo[-1].get_file()
+
+        # Check if the file is an image
+        if imghdr.what(file) is None:
+            update.message.reply_text('Invalid image file.')
+            return
+
+        # Read the image file into memory
+        img_data = file.download_as_bytearray()
+
         # Encrypt the image data
-        img_data = bytearray([b ^ 27 for b in img_bytes])
-        # Create a Pillow image object
-        img = Image.open(BytesIO(img_data))
-        # Send the encrypted image
-        bio = BytesIO()
-        img.save(bio, format="PNG")
-        bio.seek(0)
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=bio)
-    else:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Please reply to an image with the /en command.")
+        key = os.urandom(1)[0]  # Generate a random key
+        encrypted_data = bytearray([b ^ key for b in img_data])
 
+        # Send the encrypted image back to the user
+        file = BytesIO(encrypted_data)
+        file.name = 'encrypted.jpg'
+        update.message.reply_photo(photo=file, caption=f'Encryption key: {key}')
 
-def decrypt_image(update, context):
-    # Check if the reply message is an image
-    if update.message.reply_to_message.photo:
-        # Get the image file_id
-        file_id = update.message.reply_to_message.photo[-1].file_id
-        # Get the image file object
-        file_obj = context.bot.get_file(file_id)
-        # Download the image data
-        img_bytes = file_obj.download_as_bytearray()
+    except Exception as e:
+        logger.error(str(e))
+        update.message.reply_text('An error occurred while encrypting the image.')
+
+def decrypt_image(update: Update, context: CallbackContext) -> None:
+    try:
+        # Get the image file
+        file = update.message.photo[-1].get_file()
+
+        # Check if the file is an image
+        if imghdr.what(file) is None:
+            update.message.reply_text('Invalid image file.')
+            return
+
+        # Read the image file into memory
+        img_data = file.download_as_bytearray()
+
+        # Get the encryption key
+        key = int(update.message.reply_to_message.caption.split(':')[-1])
+
         # Decrypt the image data
-        img_data = bytearray([b ^ 27 for b in img_bytes])
-        # Create a Pillow image object
-        img = Image.open(BytesIO(img_data))
-        # Send the decrypted image
-        bio = BytesIO()
-        img.save(bio, format="PNG")
-        bio.seek(0)
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=bio)
-    else:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Please reply to an image with the /dy command.")
+        decrypted_data = bytearray([b ^ key for b in img_data])
 
+        # Send the decrypted image back to the user
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as temp:
+            temp.write(decrypted_data)
+            temp.flush()
+            update.message.reply_photo(photo=open(temp.name, 'rb'))
 
-def main():
-    # Create a Telegram Bot API object
-    token = "5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk"
-    bot = telegram.Bot(token=token)
-    # Create a Telegram Bot API updater
-    updater = Updater(token=token, use_context=True)
+    except Exception as e:
+        logger.error(str(e))
+        update.message.reply_text('An error occurred while decrypting the image.')
+
+def main() -> None:
+    # Create the Updater and pass it your bot's token.
+    updater = Updater('YOUR_TOKEN_HERE')
+
     # Get the dispatcher to register handlers
-    dp = updater.dispatcher
+    dispatcher = updater.dispatcher
+
     # Add command handlers
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("en", encrypt_image))
-    dp.add_handler(CommandHandler("dy", decrypt_image))
-    # Start the bot
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(MessageHandler(Filters.photo & Filters.reply & Filters.regex('^en$'), encrypt_image))
+    dispatcher.add_handler(MessageHandler(Filters.photo & Filters.reply & Filters.regex('^dy$'), decrypt_image))
+
+    # Start the Bot
     updater.start_polling()
+
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
