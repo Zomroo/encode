@@ -5,7 +5,14 @@ from code import updater
 from reset import reset_handler
 from database import Database
 from batch import batch_command_handler, done_command_handler, image_handler
-from telegram.ext import CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, Dispatcher
+
+# Create an Updater object and pass in the bot's token
+updater = Updater(token=BOT_TOKEN, use_context=True)
+
+# Create a Dispatcher object
+dispatcher = updater.dispatcher
+
 
 def reset_database():
     db = Database()
