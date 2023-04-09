@@ -1,117 +1,54 @@
-import os
+import telegram
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from PIL import Image
-from io import BytesIO
-from pyrogram import Client, filters
 import random
 
-# Set up the Telegram bot token and name
-TOKEN = "5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk"
-NAME = "Music"
+TOKEN = '5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk'
 
-# Initialize the Pyrogram client
-app = Client(
-    "my_bot",
-    bot_token=TOKEN,
-    api_id=16844842,
-    api_hash="f6b0ceec5535804be7a56ac71d08a5d4"
-)
+def start(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm a bot that can encrypt images. To encrypt an image, send me an image and use the /en command.")
 
-# Define the /start command
-@app.on_message(filters.command("start"))
-def start(client, message):
-    message.reply_text("Hello! I'm a bot that can encrypt images. To encrypt an image, send me a photo and use the /en command. To decrypt an encrypted image, use the /dy command.")
-# Define the /en command
-@app.on_message(filters.command("en"))
-def encrypt_image(client, message):
-    # Check if a photo was sent with the command
-    if not message.photo:
-        message.reply_text("Please send me a photo to encrypt.")
+def encrypt_image(update, context):
+    # Check if the message contains an image
+    if not update.message.photo:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Please send an image to encrypt.")
         return
 
-    # Get the photo with the highest resolution
-    photo = message.photo[-1]
+    # Get the file ID of the largest version of the photo
+    file_id = update.message.photo[-1].file_id
 
-    # Download the photo to the server
-    photo_file = client.download_media(photo)
+    # Download the image
+    file = context.bot.get_file(file_id)
+    img = Image.open(file.download_as_bytearray())
 
-    # Load the photo into a PIL Image object
-    with Image.open(photo_file) as img:
-        # Get the size of the image
-        width, height = img.size
+    # Get the dimensions of the image
+    width, height = img.size
 
-        # Create a new PIL Image object to store the scrambled image
-        scrambled_img = Image.new(img.mode, img.size)
+    # Encrypt the image by shuffling the pixel values
+    pixels = list(img.getdata())
+    random.shuffle(pixels)
 
-        # Create a list of pixel coordinates
-        pixels = [(x, y) for x in range(width) for y in range(height)]
+    # Create a new image with the same dimensions and the encrypted pixel values
+    encrypted_img = Image.new('RGB', (width, height))
+    encrypted_img.putdata(pixels)
 
-        # Shuffle the pixel coordinates
-        random.shuffle(pixels)
-
-        # Loop through the shuffled pixel coordinates and copy the corresponding pixel from the original image to the scrambled image
-        for i, (x, y) in enumerate(pixels):
-            scrambled_img.putpixel((x, y), img.getpixel(pixels[i]))
-
-        # Save the scrambled image to a buffer
-        buffer = BytesIO()
-        scrambled_img.save(buffer, format="JPEG")
-        buffer.seek(0)
-
-        # Send the scrambled image back to the user
-        message.reply_photo(buffer)
-
-    # Remove the photo file from the server
-    os.remove(photo_file)
-    
-# Define the /dy command
-@app.on_message(filters.command("dy"))
-def decrypt_image(client, message):
-    # Check if a reply message exists
-    if not message.reply_to_message:
-        message.reply_text("Please reply to an encrypted image to decrypt.")
-        return
-
-    # Check if the reply message has a photo
-    if not message.reply_to_message.photo:
-        message.reply_text("The replied message does not contain an image.")
-        return
-
-    # Get the photo with the highest resolution from the reply message
-    photo = message.reply_to_message.photo[-1]
-
-    # Download the photo to the server
-    photo_file = client.download_media(photo)
-
-    # Load the photo into a PIL Image object
-    with Image.open(photo_file) as img:
-        # Get the size of the image
-        width, height = img.size
-
-        # Create a new PIL Image object to store the decrypted image
-        decrypted_img = Image.new(img.mode, img.size)
-
-        # Create a list of pixel coordinates
-        pixels = [(x, y) for x in range(width) for y in range(height)]
-
-        # Shuffle the pixel coordinates
-        random.shuffle(pixels)
-
-        # Loop through the shuffled pixel coordinates and copy the corresponding pixel from the scrambled image to the decrypted image
-        for i, (x, y) in enumerate(pixels):
-            decrypted_img.putpixel(pixels[i], img.getpixel((x, y)))
-
-    # Save the decrypted image to a buffer
-    buffer = BytesIO()
-    decrypted_img.save(buffer, format="JPEG")
+    # Save the encrypted image to a buffer
+    buffer = io.BytesIO()
+    encrypted_img.save(buffer, format='JPEG')
     buffer.seek(0)
 
-    # Send the decrypted image back to the user
-    message.reply_photo(buffer)
+    # Send the encrypted image
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
 
-    # Remove the photo file from the server
-    os.remove(photo_file)
+def main():
+    updater = Updater(TOKEN, use_context=True)
 
-# Start the bot
+    # Add handlers for the /start and /en commands
+    updater.dispatcher.add_handler(CommandHandler('start', start))
+    updater.dispatcher.add_handler(CommandHandler('en', encrypt_image))
+
+    updater.start_polling()
+    updater.idle()
+
 if __name__ == '__main__':
-    app.run()
-
+    main()
