@@ -20,60 +20,60 @@ def start_command_handler(client: Client, message: Message):
 
 # Decode command handler
 @app.on_message(filters.command("decode") | filters.command("de"))
-def decode_command_handler(client: Client, message: Message):
+async def decode_command_handler(client: Client, message: Message):
     # Get the photo from the message
     photo = message.reply_to_message.photo.file_id
 
     # Get the photo file from Telegram
-    file = client.get_file(photo)
+    async for file in client.iter_files(photo):
+        # Get the bytes from the photo file
+        photo_bytes = BytesIO(await file.download_as_bytearray())
 
-    # Get the bytes from the photo file
-    photo_bytes = BytesIO(file.download_as_bytearray())
+        # Load the image from the bytes
+        image = Image.open(photo_bytes)
 
-    # Load the image from the bytes
-    image = Image.open(photo_bytes)
+        # Decode the image
+        decoded_image_bytes = base64.b64decode(image.getdata())
 
-    # Decode the image
-    decoded_image_bytes = base64.b64decode(image.getdata())
+        # Create a new image from the decoded bytes
+        decoded_image = Image.frombytes(image.mode, image.size, decoded_image_bytes)
 
-    # Create a new image from the decoded bytes
-    decoded_image = Image.frombytes(image.mode, image.size, decoded_image_bytes)
+        # Save the decoded image as bytes
+        decoded_image_bytes_io = BytesIO()
+        decoded_image.save(decoded_image_bytes_io, format="PNG")
+        decoded_image_bytes_io.seek(0)
 
-    # Save the decoded image as bytes
-    decoded_image_bytes_io = BytesIO()
-    decoded_image.save(decoded_image_bytes_io, format="PNG")
-    decoded_image_bytes_io.seek(0)
+        # Send the decoded image
+        await message.reply_photo(photo=decoded_image_bytes_io)
 
-    # Send the decoded image
-    message.reply_photo(photo=decoded_image_bytes_io)
 
 @app.on_message(filters.command("encode") | filters.command("en"))
-def encode_command_handler(client: Client, message: Message):
+async def encode_command_handler(client: Client, message: Message):
     # Get the photo from the message
     photo = message.reply_to_message.photo.file_id
 
     # Get the photo file from Telegram
-    file = client.get_file(photo)
+    async for photo_file in client.iter_files(photo):
+        # Get the bytes from the photo file
+        photo_bytes = BytesIO(await client.download_media(photo_file))
 
-    # Get the bytes from the photo file
-    photo_bytes = BytesIO(file.download_as_bytearray())
+        # Load the image from the bytes
+        image = Image.open(photo_bytes)
 
-    # Load the image from the bytes
-    image = Image.open(photo_bytes)
+        # Encode the image
+        encoded_image_bytes = base64.b64encode(image.tobytes())
 
-    # Encode the image
-    encoded_image_bytes = base64.b64encode(image.tobytes())
+        # Create a new image from the encoded bytes
+        encoded_image = Image.frombytes(image.mode, image.size, encoded_image_bytes)
 
-    # Create a new image from the encoded bytes
-    encoded_image = Image.frombytes(image.mode, image.size, encoded_image_bytes)
+        # Save the encoded image as bytes
+        encoded_image_bytes_io = BytesIO()
+        encoded_image.save(encoded_image_bytes_io, format="PNG")
+        encoded_image_bytes_io.seek(0)
 
-    # Save the encoded image as bytes
-    encoded_image_bytes_io = BytesIO()
-    encoded_image.save(encoded_image_bytes_io, format="PNG")
-    encoded_image_bytes_io.seek(0)
+        # Send the encoded image
+        await message.reply_photo(photo=encoded_image_bytes_io)
 
-    # Send the encoded image
-    message.reply_photo(photo=encoded_image_bytes_io)
 
 
 # Start the Pyrogram client
