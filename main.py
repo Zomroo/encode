@@ -1,5 +1,6 @@
 import schedule
 import time
+import config
 
 from code import updater
 from reset import reset_handler
