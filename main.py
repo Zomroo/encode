@@ -13,7 +13,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hi! Send me an image and I will encrypt it.')
+    if update.message:
+        update.message.reply_text('Hi! Send me an image and I will encrypt it.')
+    else:
+        logger.warning('Received update without message: %s', update)
 
 def encrypt_image(update: Update, context: CallbackContext) -> None:
     try:
