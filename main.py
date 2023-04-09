@@ -5,6 +5,7 @@ from code import updater
 from reset import reset_handler
 from database import Database
 from batch import batch_command_handler, done_command_handler, image_handler
+from telegram.ext import CommandHandler
 
 def reset_database():
     db = Database()
