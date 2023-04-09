@@ -105,4 +105,12 @@ def dby_command_handler(update, context):
         # Send the images to the user
         context.bot.send_media_group(chat_id=update.effective_chat.id, media=[InputMediaPhoto(file_id) for file_id in file_ids])
 
+# Add handlers for the start, en and dy commands
+batch_handler = CommandHandler("batch", batch_command_handler)
+dby_handler = CommandHandler("dby", dy_command_handler)
 
+dispatcher.add_handler(dy_handler)
+
+
+def get_handlers():
+    return [batch_handler, dy_handler]
