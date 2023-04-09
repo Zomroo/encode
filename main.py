@@ -1,8 +1,8 @@
 import schedule
 import time
 
-from encode.code import app
-from encode.database import Database
+from code import app
+from database import Database
 
 
 def reset_database():
