@@ -1,6 +1,7 @@
 import pyrogram
 from pyrogram import filters
 from PIL import Image
+import numpy as np
 
 api_id = 16844842
 api_hash = "f6b0ceec5535804be7a56ac71d08a5d4"
@@ -19,6 +20,15 @@ def inverse_pixels(image):
     return Image.eval(image, lambda x: 255 ^ x)
 
 
+def add_noise(image, level=0.1):
+    """Adds random noise to the image"""
+    arr = np.array(image)
+    noise = np.random.rand(*arr.shape) * level
+    arr = arr + noise
+    arr = np.clip(arr, 0, 255)
+    return Image.fromarray(arr.astype('uint8'))
+
+
 @app.on_message(filters.command("start"))
 def start_command(client, message):
     """Handles the /start command"""
@@ -35,7 +45,6 @@ def en_command(client, message):
         photo = message.reply_to_message.photo.file_id
         image_path = client.download_media(photo)
         with Image.open(image_path) as im:
-            im = im.convert("L")
             reversed_im = reverse_pixels(im)
             reversed_im.save(image_path)
             message.reply_to_message.reply_photo(photo=image_path)
@@ -49,12 +58,12 @@ def dy_command(client, message):
         photo = message.reply_to_message.photo.file_id
         image_path = client.download_media(photo)
         with Image.open(image_path) as im:
-            im = im.convert("L")
             inverse_im = inverse_pixels(im)
             inverse_im.save(image_path)
             message.reply_to_message.reply_photo(photo=image_path)
     else:
         message.reply_text("Please reply to an image with this command.")
+
 
 
 app.run()
