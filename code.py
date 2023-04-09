@@ -45,11 +45,10 @@ def dy_command_handler(update, context):
     # Ask the user for the image ID
     context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the image ID:")
 
-    # Start the callback handler
-    def callback_handler(update, context):
-        query = update.callback_query
-        # Get the image ID from the callback data
-        image_id = query.data
+    # Start the message handler
+    def message_handler(update, context):
+        # Get the image ID from the message text
+        image_id = update.message.text
 
         # Look up the image in MongoDB
         db = Database()
@@ -57,17 +56,17 @@ def dy_command_handler(update, context):
 
         # Check if the image exists
         if not image:
-            context.bot.answer_callback_query(callback_query_id=query.id, text="Image not found.")
+            context.bot.send_message(chat_id=update.effective_chat.id, text="Image not found.")
             return
 
         # Send the image to the user
-        context.bot.send_photo(chat_id=query.message.chat_id, photo=image["file_id"])
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo=image["file_id"])
 
         # End the conversation
-        context.bot.answer_callback_query(callback_query_id=query.id, text="Here is your image.")
+        updater.dispatcher.remove_handler(message_handler)
 
-    callback_handler = CallbackQueryHandler(callback_handler, pattern='^\\w{7}$')
-    dispatcher.add_handler(callback_handler)
+    message_handler = MessageHandler(Filters.text & (~Filters.command), message_handler)
+    updater.dispatcher.add_handler(message_handler)
 
 
 # Add handlers for the start, en and dy commands
