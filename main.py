@@ -54,7 +54,7 @@ def decrypt_image(update, context):
 
 def main():
     # Create a Telegram Bot API object
-    token = "YOUR_TOKEN_HERE"
+    token = "5931504207:AAHNzBcYEEX7AD29L0TqWF28axqivgoaKUk"
     bot = telegram.Bot(token=token)
     # Create a Telegram Bot API updater
     updater = Updater(token=token, use_context=True)
