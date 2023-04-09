@@ -40,7 +40,10 @@ def dy_command_handler(_, message: Message):
     message.reply_text("Please enter the image ID:")
 
     # start the callback handler
-    app.register_callback_query_handler(callback_handler, filters.regex(r'^\w{7}$'))
+    @app.on_callback_query(filters.regex(r'^\w{7}$'))
+async def callback_handler(_, query: CallbackQuery):
+    await query.answer(text="This is a callback query!")
+
 
 
 def callback_handler(client, callback_query: CallbackQuery):
