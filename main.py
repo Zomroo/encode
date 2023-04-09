@@ -74,8 +74,7 @@ def decrypt_image(update, context):
 
     # Unpad the decrypted image
     unpadder = unpad(bytes(padded_img_data), AES.block_size)
-    img_data = unpadder.update(p
-added_img_data) + unpadder.finalize()
+    img_data = unpadder.update(padded_img_data) + unpadder.finalize()
 
     # Create a new image with the same dimensions and the decrypted pixel values
     img = Image.open(io.BytesIO(img_data))
