@@ -32,14 +32,14 @@ class Database:
         collection = self.db['images']
         documents = []
         for image in images:
-            print(image) # print the image object to see what information it contains
             documents.append({
                 'batch_id': batch_id,
                 'file_id': image.file_id,
                 'file_size': image.file_size,
                 'file_unique_id': image.file_unique_id,
-                'file_name': image.file_name,
+                'file_name': image.file_path.split('/')[-1], # use file_path to get the file name
                 'mime_type': image.mime_type
             })
         if len(documents) > 0:
             collection.insert_many(documents)
+
