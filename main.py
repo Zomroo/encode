@@ -16,6 +16,9 @@ if __name__ == "__main__":
     # start the bot
     updater.start_polling()
 
+    # add the reset command handler
+    updater.dispatcher.add_handler(reset_command_handler)
+
     # schedule the database reset
     schedule.every().day.at("00:00").do(reset_database)
 
