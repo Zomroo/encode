@@ -74,7 +74,8 @@ def decrypt_image(update, context):
 
     # Unpad the decrypted image
     unpadder = unpad(bytes(padded_img_data), AES.block_size)
-    img_data = unpadder.update(padded_img_data) + unpadder.finalize()
+    img_data = unpadder.update(p
+added_img_data) + unpadder.finalize()
 
     # Create a new image with the same dimensions and the decrypted pixel values
     img = Image.open(io.BytesIO(img_data))
@@ -87,14 +88,20 @@ def decrypt_image(update, context):
 
     # Send the decrypted image
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
- # Add handlers for the /start, /en, and /dy commands
+ 
+
+def main():
+    # Create the Updater and pass it the bot's token
+    updater = Updater(TOKEN, use_context=True)
+
+    # Add handlers for the /start, /en, and /dy commands
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('en', encrypt_image))
     updater.dispatcher.add_handler(CommandHandler('dy', decrypt_image))
 
     # Start the bot
     updater.start_polling()
+
+    # Run the bot until the user presses Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
     updater.idle()
 
-if __name__ == '__main__':
-    main()
