@@ -9,7 +9,6 @@ from config import BOT_TOKEN
 from database import Database
 
 # Create an Updater object and pass in the bot's token
-updater = Updater(token=BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 
