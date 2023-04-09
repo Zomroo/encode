@@ -55,17 +55,6 @@ def decrypt_image(update, context):
 
     # Download the image
     file = context.bot.get_file(file_id)
-    img_bytes = io.BytesIOdef decrypt_image(update, context):
-    # Check if the message is a reply and contains an image
-    if not update.message.reply_to_message or not update.message.reply_to_message.photo:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Please reply to an image message with /dy to decrypt.")
-        return
-
-    # Get the file ID of the largest version of the photo in the replied message
-    file_id = update.message.reply_to_message.photo[-1].file_id
-
-    # Download the image
-    file = context.bot.get_file(file_id)
     img_bytes = io.BytesIO(file.download_as_bytearray())
 
     # Open the image from the byte stream
