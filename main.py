@@ -64,7 +64,7 @@ def decrypt_image(message):
         np.random.seed(random_seed) # Use the same random seed as the encryption algorithm
         unshuffled_arr = np.zeros_like(flat_arr)
         for i, j in enumerate(np.argsort(np.random.random(len(flat_arr)))):
-            unshuffled_arr[j] = flat_arr[i]
+            unshuffled_arr[i] = flat_arr[j] # fix: assign to unshuffled_arr[i] instead of unshuffled_arr[j]
         arr = unshuffled_arr.reshape(h, w, c)
         
         # Convert the decrypted image to bytes and send it to the user
@@ -75,5 +75,6 @@ def decrypt_image(message):
         bot.send_photo(message.chat.id, photo=buffered)
     except Exception as e:
         bot.reply_to(message, "Error: " + str(e))
+
 
 bot.polling()
