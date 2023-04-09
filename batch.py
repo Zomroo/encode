@@ -86,20 +86,21 @@ def dy_command_handler(update, context):
         return
 
     # Get the images from the database
-db = Database()
-images = db.get_images_from_batch(batch_id)
+    db = Database()
+    images = db.get_images_from_batch(batch_id)
 
-if images is None:
-    # If no images were found, let the user know
-    context.bot.send_message(chat_id=update.effective_chat.id, text="No images found for this batch ID.")
-else:
-    # Create a new list to store the image file IDs
-    file_ids = []
+    if images is None:
+        # If no images were found, let the user know
+        context.bot.send_message(chat_id=update.effective_chat.id, text="No images found for this batch ID.")
+    else:
+        # Create a new list to store the image file IDs
+        file_ids = []
 
-    # Loop through the images and add them to the list
-    for image in images:
-        file_ids.append(image["file_id"])
+        # Loop through the images and add them to the list
+        for image in images:
+            file_ids.append(image["file_id"])
 
-    # Send the images to the user
-    context.bot.send_media_group(chat_id=update.effective_chat.id, media=[InputMediaPhoto(file_id) for file_id in file_ids])
+        # Send the images to the user
+        context.bot.send_media_group(chat_id=update.effective_chat.id, media=[InputMediaPhoto(file_id) for file_id in file_ids])
+
 
