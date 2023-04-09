@@ -5,7 +5,7 @@ import random
 import io
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from Crypto.Util.Padding import pkcs7 as PKCS7
+from Crypto.Util.Padding import pad, unpad, PKCS7
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Util.Padding import pkcs7
 
