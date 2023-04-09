@@ -56,8 +56,8 @@ async def encode_command_handler(client: Client, message: Message):
     # Get the photo file from Telegram
     photo_file = await client.get_file(photo)
 
-    # Download the file as bytes
-    photo_bytes = BytesIO(await client.download_media(photo_file))
+    # Get the bytes from the photo file
+    photo_bytes = BytesIO(await photo_file.download_as_bytearray())
 
     # Load the image from the bytes
     image = Image.open(photo_bytes)
