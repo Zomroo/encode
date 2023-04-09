@@ -75,12 +75,11 @@ def decrypt_image(update, context):
     # Get the pixel values of the encrypted image
     pixels = list(img.getdata())
 
-    # Reverse the order of the pixels to get the original pixel values
-    original_pixels = list(reversed(pixels))
-
     # Get the original position of each pixel in the shuffled list
     original_positions = [p[1] for p in pixels]
-    original_pixels = [original_pixels[i] for i in original_positions]
+
+    # Restore the pixel values to their original positions
+    original_pixels = [pixels[original_positions.index(i)][0] for i in range(len(pixels))]
 
     # Create a new image with the same dimensions and the decrypted pixel values
     decrypted_img = Image.new('RGB', (width, height))
@@ -93,6 +92,7 @@ def decrypt_image(update, context):
 
     # Send the decrypted image
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
+
 
 
 
