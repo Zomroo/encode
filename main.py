@@ -32,12 +32,14 @@ def start_command(client, message):
 def en_command(client, message):
     """Handles the /en command"""
     if message.reply_to_message and message.reply_to_message.photo:
-        image = message.reply_to_message.photo[-1].download()
-        with Image.open(image) as im:
+        photo = message.reply_to_message.photo[-1]
+        file = photo.get_file()
+        image_path = file.download()
+        with Image.open(image_path) as im:
             im = im.convert("L")
             reversed_im = reverse_pixels(im)
-            reversed_im.save(image)
-            message.reply_to_message.reply_photo(image)
+            reversed_im.save(image_path)
+            message.reply_to_message.reply_photo(photo)
     else:
         message.reply_text("Please reply to an image with this command.")
 
@@ -46,12 +48,14 @@ def en_command(client, message):
 def dy_command(client, message):
     """Handles the /dy command"""
     if message.reply_to_message and message.reply_to_message.photo:
-        image = message.reply_to_message.photo[-1].download()
-        with Image.open(image) as im:
+        photo = message.reply_to_message.photo[-1]
+        file = photo.get_file()
+        image_path = file.download()
+        with Image.open(image_path) as im:
             im = im.convert("L")
             inverse_im = inverse_pixels(im)
-            inverse_im.save(image)
-            message.reply_to_message.reply_photo(image)
+            inverse_im.save(image_path)
+            message.reply_to_message.reply_photo(photo)
     else:
         message.reply_text("Please reply to an image with this command.")
 
