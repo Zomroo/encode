@@ -49,15 +49,15 @@ def decode_command_handler(client: Client, message: Message):
 
 # Encode command handler
 @app.on_message(filters.command("encode") | filters.command("en"))
-def encode_command_handler(client: Client, message: Message):
+async def encode_command_handler(client: Client, message: Message):
     # Get the photo from the message
     photo = message.reply_to_message.photo.file_id
 
     # Get the photo file from Telegram
-    file = client.get_file(photo)
+    file = await client.get_file(photo)
 
     # Get the bytes from the photo file
-    photo_bytes = BytesIO(file.download_as_bytearray())
+    photo_bytes = BytesIO(await file.download_as_bytearray())
 
     # Load the image from the bytes
     image = Image.open(photo_bytes)
@@ -74,7 +74,8 @@ def encode_command_handler(client: Client, message: Message):
     encoded_image_bytes_io.seek(0)
 
     # Send the encoded image
-    message.reply_photo(photo=encoded_image_bytes_io)
+    await message.reply_photo(photo=encoded_image_bytes_io)
+
 
 # Start the Pyrogram client
 app.run()
