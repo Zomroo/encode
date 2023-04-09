@@ -4,6 +4,7 @@ from PIL import Image
 import random
 import io
 from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 from Crypto.Util.Padding import pad, unpad, PKCS7
 
 # Change the following key to your own secret key
