@@ -12,7 +12,11 @@ logger = logging.getLogger(__name__)
 
 def start(update: Update, _: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi! I can decode and encode images. Send me an image and use the commands /decode or /encode to perform the respective action.')
+    if update.message:
+        update.message.reply_text('Hi! I can decode and encode images. Send me an image and use the commands /decode or /encode to perform the respective action.')
+    else:
+        logger.warning('Received an update without a message.')
+
 
 def decode_image(update: Update, _: CallbackContext) -> None:
     """Decode the image and send the decoded image."""
