@@ -19,9 +19,6 @@ def reset_command_handler(update, context):
 
 # Add the reset command handler to the main bot
 reset_handler = CommandHandler("reset", reset_command_handler)
-start_handler = CommandHandler("start", start_command_handler)
-en_handler = CommandHandler("en", en_command_handler, filters=Filters.reply)
-dy_handler = CommandHandler("dy", dy_command_handler)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(en_handler)
