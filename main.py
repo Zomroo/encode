@@ -52,27 +52,29 @@ async def encode_command_handler(client: Client, message: Message):
     # Get the photo from the message
     photo = message.reply_to_message.photo.file_id
 
-    # Get the photo file from Telegram
-    async for photo_file in client.iter_files(photo):
-        # Get the bytes from the photo file
-        photo_bytes = BytesIO(await client.download_media(photo_file))
+    # Get the file information using get_file method
+    file_info = await client.get_file(photo)
 
-        # Load the image from the bytes
-        image = Image.open(photo_bytes)
+    # Download the file
+    file_bytes = await client.download_media(file_info)
 
-        # Encode the image
-        encoded_image_bytes = base64.b64encode(image.tobytes())
+    # Load the image from the bytes
+    image = Image.open(BytesIO(file_bytes))
 
-        # Create a new image from the encoded bytes
-        encoded_image = Image.frombytes(image.mode, image.size, encoded_image_bytes)
+    # Encode the image
+    encoded_image_bytes = base64.b64encode(image.tobytes())
 
-        # Save the encoded image as bytes
-        encoded_image_bytes_io = BytesIO()
-        encoded_image.save(encoded_image_bytes_io, format="PNG")
-        encoded_image_bytes_io.seek(0)
+    # Create a new image from the encoded bytes
+    encoded_image = Image.frombytes(image.mode, image.size, encoded_image_bytes)
 
-        # Send the encoded image
-        await message.reply_photo(photo=encoded_image_bytes_io)
+    # Save the encoded image as bytes
+    encoded_image_bytes_io = BytesIO()
+    encoded_image.save(encoded_image_bytes_io, format="PNG")
+    encoded_image_bytes_io.seek(0)
+
+    # Send the encoded image
+    await message.reply_photo(photo=encoded_image_bytes_io)
+
 
 
 
