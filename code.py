@@ -40,18 +40,31 @@ def dy_command_handler(_, message: Message):
     # ask the user for the image ID
     message.reply_text("Please enter the image ID:")
 
+    # create an inline keyboard with a "Cancel" button
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Cancel", callback_data="cancel")]
+    ])
+
+    # send the message with the keyboard
+    app.send_message(
+        chat_id=message.chat.id,
+        text="Please enter the image ID:",
+        reply_markup=keyboard
+    )
+
+
     # set the next handler to get the image ID from the user
     app.register_callback_query_handler(handle_image_id_1, message.chat.id)
 
 
 def handle_image_id_1(_, query: CallbackQuery):
-    # get the image ID from the user's message
-    image_id = query.message.text.strip()
-
-    # check if the image ID is valid
-    if not re.match(r"^[a-zA-Z0-9]{7}$", image_id):
-        query.answer("Invalid image ID.", show_alert=True)
+    # check if the callback query data is "cancel"
+    if query.data == "cancel":
+        query.message.reply_text("Cancelled.")
         return
+
+    # get the image ID from the callback query data
+    image_id = query.data
 
     # look up the image in MongoDB
     db = Database()
