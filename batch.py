@@ -3,6 +3,8 @@ import logging
 
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import ChatAction
+from telegram import InputMediaPhoto
+
 
 from database import Database
 
