@@ -15,11 +15,6 @@ def reverse_pixels(image):
     return Image.eval(image, lambda x: 255 - x)
 
 
-def inverse_pixels(image):
-    """Inverses the pixel values of an image"""
-    return Image.eval(image, lambda x: 255 ^ x)
-
-
 def add_noise(image, level=0.1):
     """Adds random noise to the image"""
     arr = np.array(image)
@@ -45,7 +40,8 @@ def en_command(client, message):
         photo = message.reply_to_message.photo.file_id
         image_path = client.download_media(photo)
         with Image.open(image_path) as im:
-            reversed_im = reverse_pixels(im)
+            noisy_im = add_noise(im)
+            reversed_im = reverse_pixels(noisy_im)
             reversed_im.save(image_path)
             message.reply_to_message.reply_photo(photo=image_path)
     else:
@@ -58,12 +54,11 @@ def dy_command(client, message):
         photo = message.reply_to_message.photo.file_id
         image_path = client.download_media(photo)
         with Image.open(image_path) as im:
-            inverse_im = inverse_pixels(im)
+            inverse_im = reverse_pixels(im)
             inverse_im.save(image_path)
             message.reply_to_message.reply_photo(photo=image_path)
     else:
         message.reply_text("Please reply to an image with this command.")
-
 
 
 app.run()
