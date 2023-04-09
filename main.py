@@ -24,12 +24,19 @@ def add_noise(image, level=0.1):
     return Image.fromarray(arr.astype('uint8'))
 
 
+def pixelate(image, factor):
+    """Pixelates the image by downscaling and upscaling it"""
+    w, h = image.size
+    small = image.resize((w // factor, h // factor), resample=Image.BOX)
+    return small.resize(image.size, resample=Image.NEAREST)
+
+
 @app.on_message(filters.command("start"))
 def start_command(client, message):
     """Handles the /start command"""
     client.send_message(
         chat_id=message.chat.id,
-        text="Hi! Send me an image with the /en command to reverse the pixels or /dy command to inverse the pixels."
+        text="Hi! Send me an image with the /en command to pixelate it or /dy command to reverse the pixels."
     )
 
 
@@ -41,11 +48,12 @@ def en_command(client, message):
         image_path = client.download_media(photo)
         with Image.open(image_path) as im:
             noisy_im = add_noise(im)
-            reversed_im = reverse_pixels(noisy_im)
-            reversed_im.save(image_path)
+            pixelated_im = pixelate(noisy_im, factor=20)
+            pixelated_im.save(image_path)
             message.reply_to_message.reply_photo(photo=image_path)
     else:
         message.reply_text("Please reply to an image with this command.")
+
 
 @app.on_message(filters.command("dy"))
 def dy_command(client, message):
@@ -54,8 +62,9 @@ def dy_command(client, message):
         photo = message.reply_to_message.photo.file_id
         image_path = client.download_media(photo)
         with Image.open(image_path) as im:
-            inverse_im = reverse_pixels(im)
-            inverse_im.save(image_path)
+            pixelated_im = pixelate(im, factor=20)
+            reversed_im = reverse_pixels(pixelated_im)
+            reversed_im.save(image_path)
             message.reply_to_message.reply_photo(photo=image_path)
     else:
         message.reply_text("Please reply to an image with this command.")
