@@ -29,7 +29,7 @@ class Database:
         return images
    
 
-    def add_images_to_batch(self, batch_id, images):
+def add_images_to_batch(self, batch_id, images):
     collection = self.db['images']
     documents = []
     for image in images:
@@ -45,3 +45,5 @@ class Database:
         })
     if len(documents) > 0:
         collection.insert_many(documents)
+
+
