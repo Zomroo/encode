@@ -31,7 +31,7 @@ def en_command_handler(_, message: Message):
     db.insert_document("images", {"_id": image_id, "file_id": message.reply_to_message.photo.file_id})
 
     # send a reply to the user with the ID
-    message.reply_photo(photo=message.reply_to_message.photo.file_id, caption=f"Your image ID is {image_id}.")
+    message.reply_photo(photo="/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg", caption=f"Your image ID is {image_id}.")
 
 
 @app.on_message(filters.command("dy"))
@@ -40,16 +40,16 @@ def dy_command_handler(_, message: Message):
     message.reply_text("Please enter the image ID:")
 
     # set the next handler to get the image ID from the user
-    app.add_handler("callback_query", handle_image_id)
+    app.register_next_step_handler(message, handle_image_id)
 
 
-def handle_image_id(_, callback_query: CallbackQuery):
-    # get the image ID from the callback query data
-    image_id = callback_query.data.strip()
+def handle_image_id(message: Message):
+    # get the image ID from the user's message
+    image_id = message.text.strip()
 
     # check if the image ID is valid
     if not re.match(r"^[a-zA-Z0-9]{7}$", image_id):
-        callback_query.answer(text="Invalid image ID.")
+        message.reply_text("Invalid image ID.")
         return
 
     # look up the image in MongoDB
@@ -58,11 +58,29 @@ def handle_image_id(_, callback_query: CallbackQuery):
 
     # check if the image exists
     if not image:
-        callback_query.answer(text="Image not found.")
+        message.reply_text("Image not found.")
         return
 
     # send the image to the user
-    callback_query.message.reply_photo(photo=image["file_id"])
+    message.reply_photo(photo=image["file_id"])
+
+
+@app.on_callback_query()
+def handle_callback_query(_, query: CallbackQuery):
+    # get the image ID from the callback data
+    image_id = query.data.strip()
+
+    # look up the image in MongoDB
+    db = Database()
+    image = db.find_document_by_id("images", image_id)
+
+    # check if the image exists
+    if not image:
+        query.answer("Image not found.", show_alert=True)
+        return
+
+    # send the image to the user
+    query.message.reply_photo(photo=image["file_id"])
 
 
 if __name__ == "__main__":
