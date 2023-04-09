@@ -1,28 +1,35 @@
 import schedule
 import time
 
-from code import updater
-from reset import reset_handler, updater as reset_updater
+from telegram.ext import Updater, CommandHandler
 from database import Database
+from config import BOT_TOKEN
+
+# Create an Updater object and pass in the bot's token
+updater = Updater(token=BOT_TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+
+# Define the reset command handler
+def reset_command_handler(update, context):
+    db = Database()
+    db.client.drop_database(db.db.name)
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Database reset.")
+
+# Add the reset command handler to the main bot
+reset_handler = CommandHandler("reset", reset_command_handler)
+dispatcher.add_handler(reset_handler)
 
 # Start the main bot
 updater.start_polling()
 
-# Define the reset database function
+# Schedule the database reset
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
     print("Database reset.")
 
-# Schedule the database reset
 schedule.every().day.at("00:00").do(reset_database)
 
-# Run the scheduled tasks
 while True:
     schedule.run_pending()
     time.sleep(1)
-    
-    # Check for the "/reset" command
-    updates = reset_updater.polling_queue.get()
-    for update in updates:
-        reset_handler(update, reset_updater)
