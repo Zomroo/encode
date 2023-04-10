@@ -1,80 +1,63 @@
 import os
-import re
 import uuid
-
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
+from pyrogram import Client, filters
+from pyrogram.types import Message
+from database import insert_image, find_image_by_id
 from config import BOT_TOKEN
-from database import Database
 
-# Create an Updater object and pass in the bot's token
-updater = Updater(token=BOT_TOKEN, use_context=True)
+# Initialize the Telegram client
+app = Client('my_bot', bot_token=BOT_TOKEN)
 
-# Define the start command handler
-def start_command_handler(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to my bot!")
-
-
-# Define the en command handler
-def en_command_handler(update, context):
-    # Check if the reply message is an image
-    if not update.message.reply_to_message.photo:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Please reply with an image.")
+# Define a filter to handle messages with "/en" command
+@filters.command('en')
+def save_image(_, message: Message):
+    # Check if a photo is attached
+    if not message.photo:
+        message.reply_text('Please reply to a photo to save it.')
         return
 
-    # Check if the image size is above 5MB
-    file_size = update.message.reply_to_message.photo[-1].file_size
-    if file_size > 5242880:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, images above 5MB are not supported.")
+    # Check the size of the photo
+    if message.photo.file_size > 5 * 1024 * 1024:
+        message.reply_text('The maximum size of the photo is 5 MB.')
         return
 
-    # Generate a unique ID for the image
-    image_id = str(uuid.uuid4())[:7]
+    # Save the photo to MongoDB
+    file_id = message.photo.file_id
+    image_id = str(uuid.uuid4())
+    insert_image({'_id': image_id, 'file_id': file_id})
 
-    # Save the image to MongoDB
-    db = Database()
-    db.insert_document("images", {"_id": image_id, "file_id": update.message.reply_to_message.photo[-1].file_id})
+    # Reply with the image ID
+    message.reply_photo(photo='/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', caption=f'Image saved with ID: {image_id}')
 
-    # Send a reply to the user with the ID and image
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', 'rb'), caption=f"Your image ID is `<code>{image_id}</code>`", parse_mode='HTML')
+# Define a filter to handle messages with "/dy" command
+@filters.command('dy')
+def retrieve_image(client, message: Message):
+    # Ask for the image ID
+    message.reply_text('Please enter the ID of the image you want to retrieve.')
 
-# Define the dy command handler
-def dy_command_handler(update, context):
-    # Ask the user for the image ID
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the image ID:")
+    # Define a callback to handle the response
+    @app.on_message(filters.private & filters.text)
+    def handle_image_id(_, message: Message):
+        # Find the image by ID
+        image_id = message.text
+        image_data = find_image_by_id(image_id)
 
-    # Define a function to handle the user's response
-    def handle_user_response(update, context):
-        # Get the image ID from the message text
-        image_id = update.message.text
-
-        # Look up the image in MongoDB
-        db = Database()
-        image = db.find_document_by_id("images", image_id)
-
-        # Check if the image exists
-        if not image:
-            context.bot.send_message(chat_id=update.effective_chat.id, text="Image not found. Please enter a valid image ID.")
-
+        if not image_data:
+            # Reply if the ID is incorrect
+            message.reply_text('The provided ID is incorrect.')
             return
 
-        # Send the image to the user
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=image["file_id"], caption=f"Image ID: <code>{image_id}</code>", parse_mode='HTML')
+        # Send the photo to the user
+        file_id = image_data['file_id']
+        message.reply_photo(photo=file_id)
 
-    # Register the message handler
-    message_handler = MessageHandler(Filters.text & (~Filters.command), handle_user_response)
-    dispatcher.add_handler(message_handler)
+        # Remove the callback
+        app.remove_handler(handle_image_id)
 
+# Define a filter to handle the "/start" command
+@filters.command('start')
+def start_command(_, message: Message):
+    message.reply_text('Welcome to my bot! Use /en to save an image and /dy to retrieve it by ID.')
 
-# Add handlers for the start, en and dy commands
-start_handler = CommandHandler("start", start_command_handler)
-en_handler = CommandHandler("en", en_command_handler, filters=Filters.reply)
-dy_handler = CommandHandler("dy", dy_command_handler)
-
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(en_handler)
-dispatcher.add_handler(dy_handler)
-
-def get_handlers():
-    return [start_handler, en_handler, dy_handler]
+# Run the client
+app.run()
