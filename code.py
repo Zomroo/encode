@@ -21,26 +21,27 @@ def start_command_handler(client, message):
 # Define the en command handler
 @app.on_message(filters.reply & filters.command('en'))
 def en_command_handler(client, message):
-    # Check if the reply message is an image
-    if not message.reply_to_message.photo:
-        client.send_message(chat_id=message.chat.id, text="Please reply with an image.")
+    # Check if the reply message is a photo message
+    if not message.reply_to_message or not message.reply_to_message.photo:
+        client.send_message(chat_id=message.chat.id, text="Please reply with a photo.")
         return
 
-    # Check if the image size is above 5MB
+    # Check if the photo size is above 5MB
     file_size = message.reply_to_message.photo[-1].file_size
     if file_size > 5242880:
-        client.send_message(chat_id=message.chat.id, text="Sorry, images above 5MB are not supported.")
+        client.send_message(chat_id=message.chat.id, text="Sorry, photos above 5MB are not supported.")
         return
 
-    # Generate a unique ID for the image
-    image_id = str(uuid.uuid4())[:7]
+    # Generate a unique ID for the photo
+    photo_id = str(uuid.uuid4())[:7]
 
-    # Save the image to MongoDB
+    # Save the photo to MongoDB
     db = Database()
-    db.insert_document("images", {"_id": image_id, "file_id": message.reply_to_message.photo[-1].file_id})
+    db.insert_document("photos", {"_id": photo_id, "file_id": message.reply_to_message.photo[-1].file_id})
 
-    # Send a reply to the user with the ID and image
-    client.send_photo(chat_id=message.chat.id, photo=open('/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', 'rb'), caption=f"Your image ID is `<code>{image_id}</code>`", parse_mode='HTML')
+    # Send a reply to the user with the ID and photo
+    client.send_photo(chat_id=message.chat.id, photo=message.reply_to_message.photo[-1].file_id, caption=f"Your photo ID is `<code>{photo_id}</code>`", parse_mode='HTML')
+
 
 
 # Define the dy command handler
