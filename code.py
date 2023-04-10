@@ -55,7 +55,7 @@ def ask_code(client, message):
     # Reply to the user with a message asking for a code
     reply_message = message.reply_text("Please enter the 7 digit unique code:")
     # Register a handler that listens for the user's response
-    bot.register_next_step_handler(reply_message, lookup_image)
+    app.register_next_step_handler(reply_message, lookup_image)
 
 # Define a handler that looks up an image based on a code
 def lookup_image(client, message):
