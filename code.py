@@ -62,7 +62,7 @@ def dy_command_handler(client, message):
 
     # Check if the photo has the required dimensions
     photo = message.reply_to_message.photo
-    file_id = photo.get_biggest().file_id
+    file_id = photo[-1].file_id
 
     if photo.width != 1279 or photo.height != 1279:
         client.send_message(chat_id=message.chat.id, text="Please reply with a photo that is 1279x1279.")
