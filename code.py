@@ -49,37 +49,26 @@ def en_command_handler(client, message):
 
 
 
-# Define the handler function for /dy command
-@app.on_message(filters.command("dy"))
-def handle_dy_command(bot, message):
-    # Check if the user replied with an image
-    if message.reply_to_message and message.reply_to_message.photo:
-        # Ask the user for the 7-digit code
-        bot.send_message(message.chat.id, "Please enter the 7-digit code:")
-        # Use the app.ask_question method to ask the user for the code
-        app.ask_question(
-            chat_id=message.chat.id,
-            text="Please enter the 7-digit code:",
-            reply_markup=None,
-            timeout=30,
-            answer_cb=handle_code_input
-        )
-    else:
-        bot.send_message(message.chat.id, "Please reply with an image to use this command.")
+# Define a command handler that asks for a code
+@bot.on_message(filters.command("dy"))
+def ask_code(client, message):
+    # Reply to the user with a message asking for a code
+    reply_message = message.reply_text("Please enter the 7 digit unique code:")
+    # Register a handler that listens for the user's response
+    bot.register_next_step_handler(reply_message, lookup_image)
 
-# Define the callback function for the code input
-def handle_code_input(client, message):
-    code = message.text.strip()
-    if len(code) == 7 and code.isdigit():
-        # Look up the code in the database
-        result = collection.find_one({"code": code})
-        if result and result["image_url"]:
-            # Send the image to the user
-            client.send_photo(message.chat.id, result["image_url"])
-        else:
-            client.send_message(message.chat.id, "Code not found.")
+# Define a handler that looks up an image based on a code
+def lookup_image(client, message):
+    # Get the code from the user's message
+    code = message.text
+    # Look up the image in the database
+    image = image_collection.find_one({"code": code})
+    if image:
+        # If the image is found, send it to the user
+        bot.send_photo(message.chat.id, image["file_id"], caption=image["caption"])
     else:
-        client.send_message(message.chat.id, "Invalid code format. Please enter a 7-digit number.")
+        # If the code is not found, send an error message to the user
+        message.reply_text("Sorry, the code you entered is invalid.")
 
 
 
