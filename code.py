@@ -11,7 +11,7 @@ app = Client('my_bot', bot_token=BOT_TOKEN)
 
 # Define a filter to handle messages with "/en" command
 @filters.command('en')
-def save_image(client, message: Message):
+def save_image(client, message):
     # Get the user ID
     user_id = message.from_user.id
     
@@ -39,7 +39,7 @@ def save_image(client, message: Message):
 
 # Define a filter to handle messages with "/dy" command
 @filters.command('dy')
-def retrieve_image(client, message: Message):
+def retrieve_image(client, message):
     # Ask for the image ID
     message.reply_text('Please enter the ID of the image you want to retrieve.')
 
