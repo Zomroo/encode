@@ -1,18 +1,14 @@
 import uuid
 import logging
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-from telegram import ChatAction
-from telegram import InputMediaPhoto
+from telegram.ext import CommandHandler, MessageHandler, Filters
+from telegram import ChatAction, InputMediaPhoto
 
 from config import BOT_TOKEN
 from database import Database
+from utils import restricted
 
 logger = logging.getLogger(__name__)
-
-# Create an Updater object and pass in the bot's token
-updater = Updater(token=BOT_TOKEN, use_context=True)
-dispatcher = updater.dispatcher
 
 # Define a function to handle the /batch command
 def batch_command_handler(update, context):
@@ -107,8 +103,14 @@ def dby_command_handler(update, context):
             file_ids.append(image["file_id"])
 
         # Send the images to the user
+        if len(file_ids) > 10:
+            file_ids = file_ids[:10]
+            context.bot.send_message(chat_id=update.effective_chat.id, 
+                                     text="Only the first 10 images will be sent.")
+
         context.bot.send_media_group(chat_id=update.effective_chat.id, media=[InputMediaPhoto(file_id) for file_id in file_ids])
 
+        return
 
 # Add the handlers to the dispatcher
 dispatcher.add_handler(CommandHandler('batch', batch_command_handler))
@@ -119,3 +121,6 @@ dispatcher.add_handler(CommandHandler('dby', dby_command_handler))
 # Start the bot
 updater.start_polling()
 updater.idle()
+
+
+   
