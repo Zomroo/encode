@@ -1,36 +1,34 @@
 import schedule
 import time
 
-from code import updater, start_handler, en_handler, dy_handler
-from reset import reset_handler	
-from batch import dispatcher	
+from telegram.ext import CommandHandler
+from code import updater, get_handlers
+from reset import reset_handler
+from batch import dispatcher
 from database import Database
 
+# Add the command handlers from code.py
+for handler in get_handlers():
+    dispatcher.add_handler(handler)
 
+# Add the reset command handler
+dispatcher.add_handler(reset_handler)
+
+# Schedule the database reset
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
     print("Database reset.")
 
-if __name__ == "__main__":
-    # start the bot
-    updater.start_polling()
+schedule.every().day.at("00:00").do(reset_database)
 
-    # add the command handlers from code.py
-    updater.dispatcher.add_handler(start_handler)
-    updater.dispatcher.add_handler(en_handler)
-    updater.dispatcher.add_handler(dy_handler)
-    
-    # add the reset command handler
-    updater.dispatcher.add_handler(reset_handler)
+# Start the bot
+updater.start_polling()
 
-    # schedule the database reset
-    schedule.every().day.at("00:00").do(reset_database)
+# Start the scheduler
+while True:
+    schedule.run_pending()
+    time.sleep(1)
 
-    # start the scheduler
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-    # run the bot until interrupted
-    updater.idle()
+# Run the bot until interrupted
+updater.idle()
