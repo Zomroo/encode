@@ -4,7 +4,11 @@ from database import Database
 from config import BOT_TOKEN, AUTHORIZED_USERS
 
 # Create a Pyrogram client and pass in the bot's token
-app = Client("my_bot", bot_token=BOT_TOKEN)
+app = Client(
+    "my_bot",
+    bot_token=BOT_TOKEN,
+    workers=1
+)
 
 # Define the reset command handler
 @app.on_message(filters.command("reset") & filters.user(AUTHORIZED_USERS))
