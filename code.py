@@ -11,6 +11,13 @@ db = Database(MONGO_URL, MONGO_DB, MONGO_COLLECTION_NAME)
 # Create the Pyrogram bot client
 bot = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
+
+@bot.on_message(filters.command("start"))
+def start(client, message):
+    message.reply_text("Welcome to the Image Encoder Bot! Send me an image and I will give you a unique ID to access it later.")
+
+
+
 # Add handler for the /en command
 @bot.on_message(filters.command("en"))
 def save_image(client, message):
@@ -21,10 +28,11 @@ def save_image(client, message):
     # Save the image to MongoDB
     file_id = message.photo[-1].file_id
     unique_id = uuid.uuid4().hex[:7]
-    db.collection.insert_one({"file_id": file_id, "unique_id": unique_id})
+    db.collection.insert_one({"file_id": file_id, "unique_id": str(unique_id)})
 
     # Send the user a reply with the unique ID
     message.reply_text(f"Image saved with ID {unique_id}")
+
 
 # Add handler for the /dy command
 @bot.on_message(filters.command("dy"))
