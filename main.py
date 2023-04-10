@@ -1,4 +1,5 @@
-from code import app, reset
+from code import app
+from reset import reset
 
 if __name__ == "__main__":
     # Run the bot and the reset command handler
