@@ -3,7 +3,7 @@ import uuid
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from database import Database
-from config import BOT_TOKEN, MONGO_URL, MONGO_DB, MONGO_COLLECTION_NAME
+from config import API_HASH, API_ID, BOT_TOKEN, MONGO_URL, MONGO_DB, MONGO_COLLECTION_NAME
 
 # Set up the MongoDB database connection
 db = Database(MONGO_URL, MONGO_DB, MONGO_COLLECTION_NAME)
