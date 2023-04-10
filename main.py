@@ -5,6 +5,7 @@ from telegram.ext import Updater, CommandHandler
 from code import updater, get_handlers
 from reset import reset_handler
 from database import Database
+from handlers import get_handlers
 from batch import batch_command_handler, done_command_handler, dby_command_handler
 
 # Add the handlers to the dispatcher
