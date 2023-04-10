@@ -23,6 +23,11 @@ def done_command_handler(update, context):
     pass
     
 
+def image_handler(update, context):
+    # your code here
+    pass
+    
+    
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
