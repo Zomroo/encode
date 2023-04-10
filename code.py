@@ -69,7 +69,6 @@ def dy_command_handler(update, context):
     updater.dispatcher.add_handler(message_handler)
 
 
-
 # Add handlers for the start, en and dy commands
 start_handler = CommandHandler("start", start_command_handler)
 en_handler = CommandHandler("en", en_command_handler, filters=Filters.reply)
