@@ -9,10 +9,10 @@ from database import Database
 
 # Add the command handlers from code.py
 for handler in get_handlers():
-    updater.dispatcher.add_handler(handler)
+    dispatcher.add_handler(handler)
 
 # Add the reset command handler
-updater.dispatcher.add_handler(reset_handler)
+dispatcher.add_handler(reset_handler)
 
 # Schedule the database reset
 def reset_database():
@@ -21,6 +21,9 @@ def reset_database():
     print("Database reset.")
 
 schedule.every().day.at("00:00").do(reset_database)
+
+# Assign dispatcher before starting the updater
+dispatcher = updater.dispatcher
 
 # Start the bot
 updater.start_polling()
