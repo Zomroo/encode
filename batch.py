@@ -5,7 +5,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from telegram import ChatAction
 from telegram import InputMediaPhoto
 
-
+from config import BOT_TOKEN
 from database import Database
 
 logger = logging.getLogger(__name__)
