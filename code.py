@@ -19,23 +19,22 @@ def start(client, message):
 
 
 # Add handler for the /en command
-@bot.on_message(filters.command("en"))
-def save_image(client, message):
-    # Check if the message has an image
-    if not message.photo:
+@bot.on_message(filters.photo)
+def send_image(client, message):
+    # Check if the message is a valid unique ID
+    unique_id = message.text.strip()
+    record = db.collection.find_one({"unique_id": unique_id})
+    if not record:
+        message.reply_text("Invalid unique ID")
         return
 
-    # Save the image to MongoDB
-    file_id = message.photo[-1].file_id
-    unique_id = uuid.uuid4().hex[:7]
-    db.collection.insert_one({"file_id": file_id, "unique_id": str(unique_id)})
+    # Get the image file ID from MongoDB and send it to the user
+    file_id = record["file_id"]
+    file_path = client.download_media(file_id)
+    message.reply_photo(photo=open(file_path, "rb"))
 
-    # Send the user a reply with the unique ID
-    message.reply_text(f"Image saved with ID {unique_id}")
-
-
-    # Send the user a reply with the unique ID
-    message.reply_text(f"Image saved with ID {unique_id}")
+    # Delete the temporary file
+    os.remove(file_path)
 
 
 # Add handler for the /dy command
