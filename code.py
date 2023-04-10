@@ -49,30 +49,33 @@ def en_command_handler(client, message):
 
 
 
-@app.on_message(filters.command(['dy']) & filters.photo)
-def handle_command(client, message):
-    # Ask for 7-digit unique code
-    client.send_message(chat_id=message.chat.id, text='Please enter 7-digit unique code:')
-    # Set a filter to wait for the user's response
-    app.on_message(filters.private & filters.text)(ask_code)
-# Define a function to handle user's code input
-def ask_code(client, message):
-    # Check if the message contains a 7-digit unique code
-    code = message.text.strip()
-    if len(code) != 7 or not code.isdigit():
-        client.send_message(chat_id=message.chat.id, text='Invalid code. Please enter a 7-digit unique code.')
-        return
+# Define the /dy command handler
+@app.on_message(filters.command('dy'))
+def dy_command_handler(client, message):
+    # Ask the user for an ID
+    client.send_message(chat_id=message.chat.id, text="Please enter the ID:")
 
-    # Search for the code in MongoDB
-    db = Database()
-    result = db.find_document("photos", {"_id": code})
+    # Wait for a reply from the user
+    @app.on_message(filters.chat(message.chat.id) & filters.text)
+    def handle_reply(client, reply):
+        # Check if the reply message is from the same user and is a text message
+        if reply.from_user.id == message.from_user.id and reply.text:
+            # Get the ID from the reply
+            id = reply.text.strip()
 
-    if result:
-        # Send the corresponding image to the user
-        client.send_photo(chat_id=message.chat.id, photo=result['file_id'])
-    else:
-        client.send_message(chat_id=message.chat.id, text='Code not found.')
+            # Look up the image in MongoDB
+            db = Database()
+            image = db.get_document("photos", {"_id": id})
 
+            # If the image exists, send it to the user
+            if image and "file_id" in image:
+                client.send_photo(chat_id=message.chat.id, photo=image["file_id"])
+            else:
+                # If the image does not exist, send an error message
+                client.send_message(chat_id=message.chat.id, text="Image not found.")
+
+            # Remove the reply handler
+            app.remove_handler(handle_reply)
 
 
 
