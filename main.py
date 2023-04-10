@@ -6,10 +6,8 @@ from reset import reset_handler
 from database import Database
 from batch import batch_command_handler, done_command_handler, dby_command_handler
 
-# Add handlers for the existing commands
-handlers = get_handlers()
-
 # Add the handlers to the dispatcher
+handlers = get_handlers()
 for handler in handlers:
     updater.dispatcher.add_handler(handler)
 
