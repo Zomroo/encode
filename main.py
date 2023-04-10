@@ -1,32 +1,25 @@
 import schedule
 import time
 
-from code import updater, get_handlers
+from code import updater
 from reset import reset_handler
 from database import Database
 
-# Add the command handlers from code.py
-for handler in get_handlers():
-    updater.dispatcher.add_handler(handler)
-
-# Add the reset command handler
-updater.dispatcher.add_handler(reset_handler)
-
-# Schedule the database reset
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
     print("Database reset.")
 
-schedule.every().day.at("00:00").do(reset_database)
+if __name__ == "__main__":
+    # start the bot
+    updater.start_polling()
 
-# Start the bot
-updater.start_polling()
+    # schedule the database reset
+    schedule.every().day.at("00:00").do(reset_database)
 
-# Start the scheduler
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+    # add the reset command handler
+    updater.dispatcher.add_handler(reset_handler)
 
-# Run the bot until interrupted
-updater.idle()
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
