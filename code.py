@@ -55,10 +55,6 @@ def handle_command(client, message):
     client.send_message(chat_id=message.chat.id, text='Please enter 7-digit unique code:')
     # Set a filter to wait for the user's response
     app.on_message(filters.private & filters.text)(ask_code)
-
-    else:
-        bot.send_message(chat_id=message.chat.id, text='Please reply to a photo with /dy command.')
-
 # Define a function to handle user's code input
 def ask_code(client, message):
     # Check if the message contains a 7-digit unique code
