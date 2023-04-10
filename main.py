@@ -17,20 +17,6 @@ updater.dispatcher.add_handler(start_handler)
 updater.dispatcher.add_handler(en_handler)
 updater.dispatcher.add_handler(dy_handler)
 
-# ... rest of the code
-
-# add the batch command handler
-start_handler = CommandHandler('start', start_command_handler)
-updater.dispatcher.add_handler(start_handler)
-
-# add the done command handler
-done_handler = CommandHandler('done', done_command_handler)
-updater.dispatcher.add_handler(done_handler)
-
-# add the dby command handler
-dby_handler = CommandHandler('dby', dby_command_handler)
-updater.dispatcher.add_handler(dby_handler)
-
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
