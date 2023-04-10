@@ -7,6 +7,12 @@ from batch import dispatcher as batch_dispatcher
 from reset import reset_handler
 from database import Database
 
+
+def batch_command_handler(update, context):
+    # your code here
+    pass
+
+
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
