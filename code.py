@@ -60,7 +60,7 @@ def message_handler(client, message):
 
 
 # Define the message handler
-@app.on_message(~filters.command & ~filters.photo & filters.text)
+@app.on_message(~filters.command & ~filters.photo() & filters.text)
 def message_handler(client, message):
     # Get the image ID from the message text
     image_id = message.text
@@ -79,6 +79,7 @@ def message_handler(client, message):
 
     # End the conversation
     app.remove_handler(message_handler)
+
 
 
 if __name__ == "__main__":
