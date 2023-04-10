@@ -34,6 +34,10 @@ def save_image(client, message):
     message.reply_text(f"Image saved with ID {unique_id}")
 
 
+    # Send the user a reply with the unique ID
+    message.reply_text(f"Image saved with ID {unique_id}")
+
+
 # Add handler for the /dy command
 @bot.on_message(filters.command("dy"))
 def get_image(client, message):
