@@ -1,5 +1,3 @@
-import os
-
 # Telegram API credentials
 API_ID = 16844842
 API_HASH = "f6b0ceec5535804be7a56ac71d08a5d4"
