@@ -49,26 +49,36 @@ def en_command_handler(client, message):
 
 
 
-# Define a command handler that asks for a code
-@app.on_message(filters.command("dy"))
-def ask_code(client, message):
-    # Reply to the user with a message asking for a code
-    reply_message = message.reply_text("Please enter the 7 digit unique code:")
-    # Register a handler that listens for the user's response
-    app.register_next_step_handler(reply_message, lookup_image)
-
-# Define a handler that looks up an image based on a code
-def lookup_image(client, message):
-    # Get the code from the user's message
-    code = message.text
-    # Look up the image in the database
-    image = image_collection.find_one({"code": code})
-    if image:
-        # If the image is found, send it to the user
-        bot.send_photo(message.chat.id, image["file_id"], caption=image["caption"])
+# Define a command handler function
+@app.on_message(filters.command(['dy']))
+def handle_command(bot, message):
+    # Check if message has a photo attached
+    if message.photo:
+        # Ask for 7-digit unique code
+        bot.send_message(chat_id=message.chat.id, text='Please enter 7-digit unique code:')
+        # Set a filter to wait for the user's response
+        app.on_message(filters.private & filters.text)(ask_code)
     else:
-        # If the code is not found, send an error message to the user
-        message.reply_text("Sorry, the code you entered is invalid.")
+        bot.send_message(chat_id=message.chat.id, text='Please reply to a photo with /dy command.')
+
+# Define a function to handle user's code input
+def ask_code(client, message):
+    # Check if the message contains a 7-digit unique code
+    code = message.text.strip()
+    if len(code) != 7 or not code.isdigit():
+        client.send_message(chat_id=message.chat.id, text='Invalid code. Please enter a 7-digit unique code.')
+        return
+
+    # Search for the code in MongoDB
+    db = Database()
+    result = db.find_document("photos", {"_id": code})
+
+    if result:
+        # Send the corresponding image to the user
+        client.send_photo(chat_id=message.chat.id, photo=result['file_id'])
+    else:
+        client.send_message(chat_id=message.chat.id, text='Code not found.')
+
 
 
 
