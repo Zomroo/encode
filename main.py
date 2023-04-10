@@ -13,7 +13,6 @@ def reset_database():
 
 if __name__ == "__main__":
     # start the bot
-    updater.start_polling()
 
     # schedule the database reset
     schedule.every().day.at("00:00").do(reset_database)
