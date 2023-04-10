@@ -1,12 +1,9 @@
 import os
 import re
 import uuid
-from telegram.ext import CommandHandler
-
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from handlers import start_command_handler, en_command_handler, dy_command_handler
 
 from config import BOT_TOKEN
 from database import Database
@@ -73,24 +70,21 @@ def dy_command_handler(update, context):
 
 
 
+# Add handlers for the start, en and dy commands
+start_handler = CommandHandler("start", start_command_handler)
+en_handler = CommandHandler("en", en_command_handler, filters=Filters.reply)
+dy_handler = CommandHandler("dy", dy_command_handler)
+
+dispatcher.add_handler(start_handler)
+dispatcher.add_handler(en_handler)
+dispatcher.add_handler(dy_handler)
+
+
 def get_handlers():
-    # Create a list of all the command handlers
-    handlers = [
-        CommandHandler("start", start_command_handler),
-        CommandHandler("en", en_command_handler),
-        CommandHandler("dy", dy_command_handler)
-    ]
-    return handlers
+    return [start_handler, en_handler, dy_handler]
 
 
 if __name__ == "__main__":
-    # Create an Updater object and pass in the bot's token
-    updater = Updater(token=BOT_TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
-
-    # Add handlers to the dispatcher
-    add_handlers(dispatcher)
-
     # Start the bot
     updater.start_polling()
     updater.idle()
