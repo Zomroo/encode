@@ -110,3 +110,12 @@ def dby_command_handler(update, context):
         context.bot.send_media_group(chat_id=update.effective_chat.id, media=[InputMediaPhoto(file_id) for file_id in file_ids])
 
 
+# Add the handlers to the dispatcher
+dispatcher.add_handler(CommandHandler('batch', batch_command_handler))
+dispatcher.add_handler(MessageHandler(Filters.photo, image_handler))
+dispatcher.add_handler(CommandHandler('done', done_command_handler))
+dispatcher.add_handler(CommandHandler('dby', dby_command_handler))
+
+# Start the bot
+updater.start_polling()
+updater.idle()
