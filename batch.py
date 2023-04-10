@@ -6,7 +6,6 @@ from telegram import ChatAction, InputMediaPhoto
 
 from config import BOT_TOKEN
 from database import Database
-from utils import restricted
 
 logger = logging.getLogger(__name__)
 
