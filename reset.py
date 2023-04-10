@@ -3,7 +3,7 @@ import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
-from config import API_ID, API_HASH, BOT_TOKEN, MONGODB_URI, MONGODB_NAME, AUTHORIZED_USERS
+from config import MONGODB_URI, MONGODB_NAME, AUTHORIZED_USERS
 from database import Database
 
 # Create a Pyrogram client and pass in the bot's token
