@@ -2,6 +2,7 @@ import os
 import uuid
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from database import db
 from database import insert_image, find_image_by_id
 from config import BOT_TOKEN
 
