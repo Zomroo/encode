@@ -20,6 +20,6 @@ if __name__ == "__main__":
     # add the reset command handler
     updater.dispatcher.add_handler(reset_handler)
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    # Start the bot
+    updater.start_polling()
+    updater.idle()
