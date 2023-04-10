@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from config import MONGODB_URI, MONGODB_NAME
 from pyrogram import Client
 
+
 class Database:
     def __init__(self):
         self.client = MongoClient(MONGODB_URI)
@@ -20,9 +21,14 @@ class Database:
         result = collection.update_one(filter, update)
         return result
 
+    def get_document(self, collection_name, filter):
+        collection = self.db[collection_name]
+        return collection.find_one(filter)
+
     def drop_database(self):
         self.client.drop_database(self.db.name)
-        
+
+
 class PyrogramDatabase:
     def __init__(self, client):
         self.client = client
@@ -40,6 +46,10 @@ class PyrogramDatabase:
         collection = self.db[collection_name]
         result = collection.update_one(filter, update)
         return result
+
+    async def get_document(self, collection_name, filter):
+        collection = self.db[collection_name]
+        return collection.find_one(filter)
 
     async def drop_database(self):
         MongoClient(MONGODB_URI).drop_database(self.db.name)
