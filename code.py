@@ -32,7 +32,7 @@ def get_image(client, message):
     # Ask the user for the unique ID
     message.reply_text("Please enter the unique ID:")
 
-@bot.on_message(filters.text & ~filters.edited)
+@bot.on_message(filters.text)
 def send_image(client, message):
     # Check if the message is a valid unique ID
     unique_id = message.text.strip()
