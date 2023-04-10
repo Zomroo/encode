@@ -1,38 +1,24 @@
 import schedule
 import time
 
-from code import updater as code_updater
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from batch import dispatcher as batch_dispatcher
+from code import updater
 from reset import reset_handler
 from database import Database
+from telegram.ext import CommandHandler
+from batch_commands import batch_command_handler, done_command_handler, dby_command_handler
 
+# add the batch command handler
+batch_handler = CommandHandler('batch', batch_command_handler)
+dispatcher.add_handler(batch_handler)
 
-def batch_command_handler(update, context):
-    # your code here
-    pass
+# add the done command handler
+done_handler = CommandHandler('done', done_command_handler)
+dispatcher.add_handler(done_handler)
 
-def image_handler(update, context):
-    # get the photo file
-    photo_file = context.bot.get_file(update.message.photo[-1].file_id)
-    # download the photo
-    photo_file.download('photo.jpg')
-    
-def done_command_handler(update, context):
-    # your code here
-    pass
+# add the dby command handler
+dby_handler = CommandHandler('dby', dby_command_handler)
+dispatcher.add_handler(dby_handler)
 
-def dby_command_handler(update, context):
-    # your code here
-    pass
-
-    
-
-def image_handler(update, context):
-    # your code here
-    pass
-    
-    
 def reset_database():
     db = Database()
     db.client.drop_database(db.db.name)
@@ -40,20 +26,13 @@ def reset_database():
 
 if __name__ == "__main__":
     # start the bot
-    code_updater.start_polling()
+    updater.start_polling()
 
     # schedule the database reset
     schedule.every().day.at("00:00").do(reset_database)
 
     # add the reset command handler
-    code_updater.dispatcher.add_handler(reset_handler)
-
-    # add the batch handlers to the batch dispatcher
-    batch_dispatcher.add_handler(CommandHandler('batch', batch_command_handler))
-    batch_dispatcher.add_handler(MessageHandler(Filters.photo, image_handler))
-    batch_dispatcher.add_handler(CommandHandler('done', done_command_handler))
-    batch_dispatcher.add_handler(CommandHandler('dby', dby_command_handler))
-
+    updater.dispatcher.add_handler(reset_handler)
 
     while True:
         schedule.run_pending()
