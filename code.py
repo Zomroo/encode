@@ -101,7 +101,7 @@ def reset_database():
 @app.on_message(filters.command('reset'))
 def reset_command_handler(client, message):
     # Check if the user is authorized
-    if message.from_user.id not in [123, 456, 789]: # Replace with authorized user IDs
+    if message.from_user.id not in [5148561602]: # Replace with authorized user IDs
         return
     # Reset the database and send a confirmation message
     if reset_database():
