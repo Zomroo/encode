@@ -50,7 +50,7 @@ def en_command_handler(client, message):
 
 
 # Define the handler function for /dy command
-@bot.on_message(filters.command("dy"))
+@app.on_message(filters.command("dy"))
 def handle_dy_command(bot, message):
     # Check if the user replied with an image
     if message.reply_to_message and message.reply_to_message.photo:
