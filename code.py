@@ -70,19 +70,13 @@ def dy_command_handler(update, context):
 
 
 
-# Add handlers for the start, en and dy commands
-start_handler = CommandHandler("start", start_command_handler)
-en_handler = CommandHandler("en", en_command_handler, filters=Filters.reply)
-dy_handler = CommandHandler("dy", dy_command_handler)
-
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(en_handler)
-dispatcher.add_handler(dy_handler)
-
-
 def get_handlers():
-    return [start_handler, en_handler, dy_handler]
+    # Add handlers for the start, en and dy commands
+    start_handler = CommandHandler("start", start_command_handler)
+    en_handler = CommandHandler("en", en_command_handler, filters=Filters.reply)
+    dy_handler = CommandHandler("dy", dy_command_handler)
 
+    return [start_handler, en_handler, dy_handler]
 
 if __name__ == "__main__":
     # Start the bot
