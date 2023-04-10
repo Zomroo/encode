@@ -56,24 +56,24 @@ def handle_dy_command(bot, message):
     if message.reply_to_message and message.reply_to_message.photo:
         # Ask the user for the 7-digit code
         bot.send_message(message.chat.id, "Please enter the 7-digit code:")
-        # Register a handler for the next message
-        bot.register_next_step_handler(message, handle_code_input)
+        # Use the app.ask method to ask the user for the code
+        app.ask(message.chat.id, handle_code_input)
     else:
         bot.send_message(message.chat.id, "Please reply with an image to use this command.")
 
-# Define the handler function for the code input
-def handle_code_input(bot, message):
+# Define the callback function for the code input
+def handle_code_input(client, message):
     code = message.text.strip()
     if len(code) == 7 and code.isdigit():
         # Look up the code in the database
         result = collection.find_one({"code": code})
         if result and result["image_url"]:
             # Send the image to the user
-            bot.send_photo(message.chat.id, result["image_url"])
+            client.send_photo(message.chat.id, result["image_url"])
         else:
-            bot.send_message(message.chat.id, "Code not found.")
+            client.send_message(message.chat.id, "Code not found.")
     else:
-        bot.send_message(message.chat.id, "Invalid code format. Please enter a 7-digit number.")
+        client.send_message(message.chat.id, "Invalid code format. Please enter a 7-digit number.")
 
 
 
