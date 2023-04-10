@@ -53,10 +53,8 @@ class PyrogramDatabase:
 
     async def drop_database(self):
         MongoClient(MONGODB_URI).drop_database(self.db.name)
-        
-        from pymongo import MongoClient
+
 
 def reset_db():
     with MongoClient(MONGODB_URI) as client:
         client.drop_database(MONGODB_NAME)
-
