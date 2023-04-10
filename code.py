@@ -6,7 +6,7 @@ from database import Database
 from config import BOT_TOKEN, MONGO_URL
 
 # Set up the MongoDB database connection
-db = Database(MONGO_URL, MONGO_DB, MONGO_COLLECTION_NAME)
+db = Database(MONGO_URL)
 
 # Create the Pyrogram bot client
 bot = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
