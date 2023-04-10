@@ -6,6 +6,7 @@ from telegram.ext import CommandHandler
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from handlers import start_command_handler, en_command_handler, dy_command_handler
 
 from config import BOT_TOKEN
 from database import Database
@@ -72,12 +73,14 @@ def dy_command_handler(update, context):
 
 
 
-def add_handlers(dispatcher):
-    # Add handlers for the start, en, and dy commands
-    dispatcher.add_handler(CommandHandler("start", start_command_handler))
-    dispatcher.add_handler(CommandHandler("en", en_command_handler, filters=Filters.reply))
-    dispatcher.add_handler(CommandHandler("dy", dy_command_handler))
-
+def get_handlers():
+    # Create a list of all the command handlers
+    handlers = [
+        CommandHandler("start", start_command_handler),
+        CommandHandler("en", en_command_handler),
+        CommandHandler("dy", dy_command_handler)
+    ]
+    return handlers
 
 
 if __name__ == "__main__":
