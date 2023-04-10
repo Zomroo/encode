@@ -1,8 +1,6 @@
-from code import app
+from code import bot
 from database import connect
 
-# Connect to the database
-connect()
-
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+    # Run the bot
+    bot.run()
