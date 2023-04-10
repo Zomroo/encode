@@ -98,6 +98,7 @@ def reset_database():
         return True
     except ConnectionFailure:
         return False
+
 # Define the /reset command handler
 @app.on_message(filters.command('reset'))
 def reset_command_handler(client, message):
