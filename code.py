@@ -72,10 +72,6 @@ def dy_command_handler(update, context):
 
 
 
- Import command handlers
-from .commands import start_command_handler, en_command_handler, dy_command_handler
-
-
 def add_handlers(dispatcher):
     # Add handlers for the start, en, and dy commands
     dispatcher.add_handler(CommandHandler("start", start_command_handler))
