@@ -1,8 +1,8 @@
 import schedule
 import time
 
-from code import updater
-from batch import updater
+from code import updater as code_updater
+from batch import dispatcher as batch_dispatcher
 from reset import reset_handler
 from database import Database
 
@@ -13,13 +13,19 @@ def reset_database():
 
 if __name__ == "__main__":
     # start the bot
-    updater.start_polling()
+    code_updater.start_polling()
 
     # schedule the database reset
     schedule.every().day.at("00:00").do(reset_database)
 
     # add the reset command handler
-    updater.dispatcher.add_handler(reset_handler)
+    code_updater.dispatcher.add_handler(reset_handler)
+
+    # add the batch handlers to the batch dispatcher
+    batch_dispatcher.add_handler(CommandHandler('batch', batch_command_handler))
+    batch_dispatcher.add_handler(MessageHandler(Filters.photo, image_handler))
+    batch_dispatcher.add_handler(CommandHandler('done', done_command_handler))
+    batch_dispatcher.add_handler(CommandHandler('dby', dby_command_handler))
 
     while True:
         schedule.run_pending()
