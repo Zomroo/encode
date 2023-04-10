@@ -1,13 +1,19 @@
 import uuid
 import logging
 
-from telegram.ext import CommandHandler, MessageHandler, Filters
+from telegram.ext import CommandHandler, MessageHandler, Filters, Updater
 from telegram import ChatAction, InputMediaPhoto
 
 from config import BOT_TOKEN
 from database import Database
 
 logger = logging.getLogger(__name__)
+
+# Initialize the Updater with your bot's token
+updater = Updater(token=BOT_TOKEN, use_context=True)
+
+# Get the Dispatcher from the Updater
+dispatcher = updater.dispatcher
 
 # Define a function to handle the /batch command
 def batch_command_handler(update, context):
