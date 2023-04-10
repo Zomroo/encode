@@ -1,65 +1,78 @@
 import os
+import re
 import uuid
+
 from pyrogram import Client, filters
 from pyrogram.types import Message
+
+from config import API_ID, API_HASH, BOT_TOKEN
 from database import Database
-from config import API_HASH, API_ID, BOT_TOKEN, MONGO_URL, MONGO_DB, MONGO_COLLECTION_NAME
 
-# Set up the MongoDB database connection
-db = Database(MONGO_URL, MONGO_DB, MONGO_COLLECTION_NAME)
-
-# Create the Pyrogram bot client
-bot = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+# Create a Pyrogram client and pass in the bot's token
+app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 
-@bot.on_message(filters.command("start"))
-def start(client, message):
-    message.reply_text("Welcome to the Image Encoder Bot! Send me an image and I will give you a unique ID to access it later.")
+# Define the start command handler
+@app.on_message(filters.command('start'))
+def start_command_handler(client, message):
+    client.send_message(chat_id=message.chat.id, text="Welcome to my bot!")
 
 
-
-# Add handler for the /en command
-@bot.on_message(filters.photo)
-def send_image(client, message):
-    # Check if the message is a valid unique ID
-    unique_id = message.text.strip()
-    record = db.collection.find_one({"unique_id": unique_id})
-    if not record:
-        message.reply_text("Invalid unique ID")
+# Define the en command handler
+@app.on_message(filters.reply & filters.command('en'))
+def en_command_handler(client, message):
+    # Check if the reply message is an image
+    if not message.reply_to_message.photo:
+        client.send_message(chat_id=message.chat.id, text="Please reply with an image.")
         return
 
-    # Get the image file ID from MongoDB and send it to the user
-    file_id = record["file_id"]
-    file_path = client.download_media(file_id)
-    message.reply_photo(photo=open(file_path, "rb"))
-
-    # Delete the temporary file
-    os.remove(file_path)
-
-
-# Add handler for the /dy command
-@bot.on_message(filters.command("dy"))
-def get_image(client, message):
-    # Ask the user for the unique ID
-    message.reply_text("Please enter the unique ID:")
-
-@bot.on_message(filters.text)
-def send_image(client, message):
-    # Check if the message is a valid unique ID
-    unique_id = message.text.strip()
-    record = db.collection.find_one({"unique_id": unique_id})
-    if not record:
-        message.reply_text("Invalid unique ID")
+    # Check if the image size is above 5MB
+    file_size = message.reply_to_message.photo[-1].file_size
+    if file_size > 5242880:
+        client.send_message(chat_id=message.chat.id, text="Sorry, images above 5MB are not supported.")
         return
 
-    # Get the image file ID from MongoDB and send it to the user
-    file_id = record["file_id"]
-    file_path = client.download_media(file_id)
-    message.reply_photo(photo=open(file_path, "rb"))
+    # Generate a unique ID for the image
+    image_id = str(uuid.uuid4())[:7]
 
-    # Delete the temporary file
-    os.remove(file_path)
+    # Save the image to MongoDB
+    db = Database()
+    db.insert_document("images", {"_id": image_id, "file_id": message.reply_to_message.photo[-1].file_id})
+
+    # Send a reply to the user with the ID and image
+    client.send_photo(chat_id=message.chat.id, photo=open('/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', 'rb'), caption=f"Your image ID is `<code>{image_id}</code>`", parse_mode='HTML')
+
+
+# Define the dy command handler
+@app.on_message(filters.command('dy'))
+def dy_command_handler(client, message):
+    # Ask the user for the image ID
+    client.send_message(chat_id=message.chat.id, text="Please enter the image ID:")
+
+    # Start the message handler
+    @app.on_message(filters.text & ~filters.command)
+    def message_handler(client, message):
+        # Get the image ID from the message text
+        image_id = message.text
+
+        # Look up the image in MongoDB
+        db = Database()
+        image = db.find_document_by_id("images", image_id)
+
+        # Check if the image exists
+        if not image:
+            client.send_message(chat_id=message.chat.id, text="Image not found. Please enter a valid image ID.")
+            return
+
+        # Send the image to the user
+        client.send_photo(chat_id=message.chat.id, photo=image["file_id"], caption=f"Image ID: <code>{image_id}</code>", parse_mode='HTML')
+
+        # End the conversation
+        app.remove_handler(message_handler)
+
+    app.add_handler(message_handler)
+
 
 if __name__ == "__main__":
-    # Run the bot
-    bot.run()
+    # Start the bot
+    app.run() 
