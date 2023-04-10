@@ -44,7 +44,7 @@ def en_command_handler(client, message):
     db.insert_document("photos", {"_id": photo_id, "file_id": file_id})
 
     # Send a reply to the user with the ID and photo
-    client.send_photo(chat_id=message.chat.id, photo=file_id, caption=f"Your photo ID is <code>{photo_id}</code>", parse_mode='MarkdownV2')
+    client.send_message(chat_id=message.chat.id, text=f"Your photo has been saved with ID {photo_id}.")
 
 
 
