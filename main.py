@@ -4,20 +4,19 @@ import time
 from code import updater
 from reset import reset_handler
 from database import Database
-from telegram.ext import CommandHandler
 from batch import batch_command_handler, done_command_handler, dby_command_handler
 
 # add the batch command handler
 batch_handler = CommandHandler('batch', batch_command_handler)
-dispatcher.add_handler(batch_handler)
+updater.dispatcher.add_handler(batch_handler)
 
 # add the done command handler
 done_handler = CommandHandler('done', done_command_handler)
-dispatcher.add_handler(done_handler)
+updater.dispatcher.add_handler(done_handler)
 
 # add the dby command handler
 dby_handler = CommandHandler('dby', dby_command_handler)
-dispatcher.add_handler(dby_handler)
+updater.dispatcher.add_handler(dby_handler)
 
 def reset_database():
     db = Database()
