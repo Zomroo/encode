@@ -50,7 +50,7 @@ def en_command_handler(client, message):
 
 
 # Define the dy command handler
-@app.on_message(filters.text & ~filters.command & ~filters.photo)
+@app.on_message(filters.text & ~filters.command & ~filters.photo())
 def message_handler(client, message):
     # Ask the user for the image ID
     client.send_message(chat_id=message.chat.id, text="Please enter the image ID:")
