@@ -87,8 +87,8 @@ def dy_command_handler(client, message):
 def reset_database():
     try:
         # Connect to the MongoDB database
-        client = MongoClient("mongodb://localhost:27017/")
-        db = client["mydatabase"]
+        client = MongoClient("mongodb+srv://Zoro:Zoro@cluster0.x1vigdr.mongodb.net/?retryWrites=true&w=majority")
+        db = client["telegram_bot"]
         collection_names = db.list_collection_names()
         # Delete all documents in each collection
         for name in collection_names:
