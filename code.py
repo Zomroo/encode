@@ -50,7 +50,7 @@ def en_command_handler(client, message):
 
 
 # Define a command handler that asks for a code
-@bot.on_message(filters.command("dy"))
+@app.on_message(filters.command("dy"))
 def ask_code(client, message):
     # Reply to the user with a message asking for a code
     reply_message = message.reply_text("Please enter the 7 digit unique code:")
