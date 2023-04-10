@@ -27,7 +27,7 @@ def en_command_handler(client, message):
         return
 
     # Get the photo file ID and size
-    photo = message.reply_to_message.photo[-1]
+    photo = message.reply_to_message.photo
     file_id = photo.file_id
     file_size = photo.file_size
 
