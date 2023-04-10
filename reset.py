@@ -1,24 +1,30 @@
-from telegram.ext import Updater, CommandHandler
-from database import Database
-from config import BOT_TOKEN, AUTHORIZED_USERS
+import os
 
-# Create an Updater object and pass in the bot's token
-updater = Updater(token=BOT_TOKEN, use_context=True)
-dispatcher = updater.dispatcher
+from pyrogram import Client, filters
+from pyrogram.types import Message
+
+from config import API_ID, API_HASH, BOT_TOKEN, MONGODB_URI, MONGODB_NAME, AUTHORIZED_USERS
+from database import Database
+
+# Create a Pyrogram client and pass in the bot's token
+app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
 
 # Define the reset command handler
-def reset_command_handler(update, context):
-    user_id = update.effective_user.id
-    if user_id in AUTHORIZED_USERS:
-        db = Database()
-        db.client.drop_database(db.db.name)
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Database reset.")
+@app.on_message(filters.command('reset') & filters.user(AUTHORIZED_USERS))
+def reset_command_handler(client, message):
+    # Check if the user is authorized to use this command
+    if message.from_user.id not in AUTHORIZED_USERS:
+        return
 
-# Add the reset command handler
-reset_handler = CommandHandler("reset", reset_command_handler)
-dispatcher.add_handler(reset_handler)
+    # Delete the entire database
+    db = Database(uri=MONGODB_URI, name=MONGODB_NAME)
+    db.drop_collection(MONGO_COLLECTION_NAME)
+
+    # Send a message to confirm that the database has been deleted
+    client.send_message(chat_id=message.chat.id, text="The database has been deleted.")
+
 
 if __name__ == "__main__":
     # Start the bot
-    updater.start_polling()
-    updater.idle()
+    app.run()
