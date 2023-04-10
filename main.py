@@ -20,8 +20,8 @@ updater.dispatcher.add_handler(dy_handler)
 # ... rest of the code
 
 # add the batch command handler
-batch_handler = CommandHandler('batch', batch_command_handler)
-updater.dispatcher.add_handler(batch_handler)
+start_handler = CommandHandler('start', start_command_handler)
+updater.dispatcher.add_handler(start_handler)
 
 # add the done command handler
 done_handler = CommandHandler('done', done_command_handler)
