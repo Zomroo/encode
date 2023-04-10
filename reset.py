@@ -15,7 +15,3 @@ def reset_command_handler(client: Client, message: Message):
 
     db.drop_database('mydatabase')
     message.reply_text('Database reset successful.')
-
-if __name__ == "__main__":
-    # Start the reset command handler
-    reset_app.start()
