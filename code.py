@@ -56,7 +56,11 @@ def dy_command_handler(client, message):
     client.send_message(chat_id=message.chat.id, text="Please enter the image ID:")
 
     # Start the message handler
-@app.on_message(~filters.command & filters.text)
+    app.add_handler(message_handler)
+
+
+# Define the message handler
+@app.on_message(~filters.command & ~filters.photo & filters.text)
 def message_handler(client, message):
     # Get the image ID from the message text
     image_id = message.text
@@ -75,9 +79,6 @@ def message_handler(client, message):
 
     # End the conversation
     app.remove_handler(message_handler)
-
-
-    app.add_handler(message_handler)
 
 
 if __name__ == "__main__":
