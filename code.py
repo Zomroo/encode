@@ -4,6 +4,9 @@ import uuid
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
+
 
 from config import API_ID, API_HASH, BOT_TOKEN
 from database import Database
@@ -81,6 +84,30 @@ def dy_command_handler(client, message):
     app.add_handler(handle_reply)
 
 
+def reset_database():
+    try:
+        # Connect to the MongoDB database
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["mydatabase"]
+        collection_names = db.list_collection_names()
+        # Delete all documents in each collection
+        for name in collection_names:
+            db[name].delete_many({})
+        client.close()
+        return True
+    except ConnectionFailure:
+        return False
+# Define the /reset command handler
+@app.on_message(filters.command('reset'))
+def reset_command_handler(client, message):
+    # Check if the user is authorized
+    if message.from_user.id not in [123, 456, 789]: # Replace with authorized user IDs
+        return
+    # Reset the database and send a confirmation message
+    if reset_database():
+        client.send_message(chat_id=message.chat.id, text="Database reset successfully.")
+    else:
+        client.send_message(chat_id=message.chat.id, text="Failed to reset database.")
 
 
 
