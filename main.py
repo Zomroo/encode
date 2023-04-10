@@ -1,16 +1,15 @@
 import schedule
 import time
+from telegram.ext import Dispatcher
 
-from code import updater, get_handlers, dispatcher
-from reset import reset_handler
-from database import Database
+from code import updater, get_handlers
 
-# Add the command handlers from code.py
+# Create a Dispatcher object and pass in the updater's bot
+dispatcher = Dispatcher(updater.bot, None)
+
+# Add the command handlers from code.py to the dispatcher
 for handler in get_handlers():
     dispatcher.add_handler(handler)
-
-# Add the reset command handler
-dispatcher.add_handler(reset_handler)
 
 # Schedule the database reset
 def reset_database():
@@ -19,6 +18,9 @@ def reset_database():
     print("Database reset.")
 
 schedule.every().day.at("00:00").do(reset_database)
+
+# Add the reset command handler	
+dispatcher.add_handler(reset_handler)
 
 # Start the bot
 updater.start_polling()
