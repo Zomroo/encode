@@ -5,7 +5,7 @@ from code import updater
 from reset import reset_handler
 from database import Database
 from telegram.ext import CommandHandler
-from batch_commands import batch_command_handler, done_command_handler, dby_command_handler
+from batch import batch_command_handler, done_command_handler, dby_command_handler
 
 # add the batch command handler
 batch_handler = CommandHandler('batch', batch_command_handler)
