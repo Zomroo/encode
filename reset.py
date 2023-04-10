@@ -15,4 +15,4 @@ def reset(update, context):
 
 if __name__ == "__main__":
     # Start the bot
-    app.run()
+    bot.run()
