@@ -26,8 +26,12 @@ def en_command_handler(client, message):
         client.send_message(chat_id=message.chat.id, text="Please reply with a photo.")
         return
 
+    # Get the photo file ID and size
+    photo = message.reply_to_message.photo[-1]
+    file_id = photo.file_id
+    file_size = photo.file_size
+
     # Check if the photo size is above 5MB
-    file_size = message.reply_to_message.photo[-1].file_size
     if file_size > 5242880:
         client.send_message(chat_id=message.chat.id, text="Sorry, photos above 5MB are not supported.")
         return
@@ -37,10 +41,11 @@ def en_command_handler(client, message):
 
     # Save the photo to MongoDB
     db = Database()
-    db.insert_document("photos", {"_id": photo_id, "file_id": message.reply_to_message.photo[-1].file_id})
+    db.insert_document("photos", {"_id": photo_id, "file_id": file_id})
 
     # Send a reply to the user with the ID and photo
-    client.send_photo(chat_id=message.chat.id, photo=message.reply_to_message.photo[-1].file_id, caption=f"Your photo ID is `<code>{photo_id}</code>`", parse_mode='HTML')
+    client.send_photo(chat_id=message.chat.id, photo=file_id, caption=f"Your photo ID is `<code>{photo_id}</code>`", parse_mode='HTML')
+
 
 
 
