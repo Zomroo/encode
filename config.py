@@ -7,6 +7,6 @@ AUTHORIZED_USERS = [5148561602]  # Replace with the actual user ids of authorize
 BOT_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
 
 # MongoDB connection settings
-MONGO_URI = "mongodb+srv://Zoro:Zoro@cluster0.x1vigdr.mongodb.net/?retryWrites=true&w=majority"
-MONGO_DB = "telegram_bot"
+MONGODB_URI = "mongodb+srv://Zoro:Zoro@cluster0.x1vigdr.mongodb.net/?retryWrites=true&w=majority"
+MONGODB_NAME = "telegram_bot"
 MONGO_COLLECTION_NAME = "images"
