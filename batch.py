@@ -1,7 +1,7 @@
 import uuid
 import logging
 
-from telegram.ext import CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import ChatAction
 from telegram import InputMediaPhoto
 
