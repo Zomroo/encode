@@ -56,25 +56,26 @@ def dy_command_handler(client, message):
     client.send_message(chat_id=message.chat.id, text="Please enter the image ID:")
 
     # Start the message handler
-    @app.on_message(filters.text & ~filters.command)
-    def message_handler(client, message):
-        # Get the image ID from the message text
-        image_id = message.text
+@app.on_message(~filters.command & filters.text)
+def message_handler(client, message):
+    # Get the image ID from the message text
+    image_id = message.text
 
-        # Look up the image in MongoDB
-        db = Database()
-        image = db.find_document_by_id("images", image_id)
+    # Look up the image in MongoDB
+    db = Database()
+    image = db.find_document_by_id("images", image_id)
 
-        # Check if the image exists
-        if not image:
-            client.send_message(chat_id=message.chat.id, text="Image not found. Please enter a valid image ID.")
-            return
+    # Check if the image exists
+    if not image:
+        client.send_message(chat_id=message.chat.id, text="Image not found. Please enter a valid image ID.")
+        return
 
-        # Send the image to the user
-        client.send_photo(chat_id=message.chat.id, photo=image["file_id"], caption=f"Image ID: <code>{image_id}</code>", parse_mode='HTML')
+    # Send the image to the user
+    client.send_photo(chat_id=message.chat.id, photo=image["file_id"], caption=f"Image ID: <code>{image_id}</code>", parse_mode='HTML')
 
-        # End the conversation
-        app.remove_handler(message_handler)
+    # End the conversation
+    app.remove_handler(message_handler)
+
 
     app.add_handler(message_handler)
 
