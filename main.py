@@ -5,7 +5,7 @@ from code import updater
 from reset import reset_handler
 from database import Database
 from batch import batch_command_handler, done_command_handler, dby_command_handler
-from code import start_command_handler, en_command_handler, dy_command_handler
+from existing_file import start_command_handler, en_command_handler, dy_command_handler
 
 # Add handlers for the existing commands
 start_handler = CommandHandler("start", start_command_handler)
