@@ -21,6 +21,11 @@ def image_handler(update, context):
 def done_command_handler(update, context):
     # your code here
     pass
+
+def dby_command_handler(update, context):
+    # your code here
+    pass
+
     
 
 def image_handler(update, context):
@@ -48,6 +53,7 @@ if __name__ == "__main__":
     batch_dispatcher.add_handler(MessageHandler(Filters.photo, image_handler))
     batch_dispatcher.add_handler(CommandHandler('done', done_command_handler))
     batch_dispatcher.add_handler(CommandHandler('dby', dby_command_handler))
+
 
     while True:
         schedule.run_pending()
