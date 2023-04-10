@@ -23,11 +23,11 @@ def start_command_handler(client, message):
 
 
 # Define the en command handler
-@app.on_message(filters.reply & filters.command('en'))
+@app.on_message(filters.command('en'))
 def en_command_handler(client, message):
-    # Check if the reply message is a photo message
-    if not message.reply_to_message or not message.reply_to_message.photo:
-        client.send_message(chat_id=message.chat.id, text="Please reply with a photo.")
+    # Check if the user has replied to an image message
+    if message.reply_to_message is None or message.reply_to_message.photo is None:
+        client.send_message(chat_id=message.chat.id, text="Please reply to a photo message with /en.")
         return
 
     # Get the photo file ID and size
