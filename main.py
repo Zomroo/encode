@@ -2,7 +2,7 @@ import schedule
 import time
 
 from code import updater as code_updater
-from telegram.ext import CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from batch import dispatcher as batch_dispatcher
 from reset import reset_handler
 from database import Database
