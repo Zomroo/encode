@@ -10,7 +10,6 @@ from database import Database
 
 # Create an Updater object and pass in the bot's token
 updater = Updater(token=BOT_TOKEN, use_context=True)
-dispatcher = updater.dispatcher
 
 # Define the start command handler
 def start_command_handler(update, context):
@@ -57,6 +56,7 @@ def dy_command_handler(update, context):
         # Check if the image exists
         if not image:
             context.bot.send_message(chat_id=update.effective_chat.id, text="Image not found. Please enter a valid image ID.")
+
             return
 
         # Send the image to the user
