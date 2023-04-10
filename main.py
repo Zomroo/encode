@@ -17,6 +17,11 @@ def image_handler(update, context):
     photo_file = context.bot.get_file(update.message.photo[-1].file_id)
     # download the photo
     photo_file.download('photo.jpg')
+    
+def done_command_handler(update, context):
+    # your code here
+    pass
+    
 
 def reset_database():
     db = Database()
