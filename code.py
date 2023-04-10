@@ -10,24 +10,30 @@ app = Client('my_bot', bot_token=BOT_TOKEN)
 
 # Define a filter to handle messages with "/en" command
 @filters.command('en')
-def save_image(_, message: Message):
-    # Check if a photo is attached
-    if not message.photo:
-        message.reply_text('Please reply to a photo to save it.')
-        return
+def save_image(client, message: Message):
+    # Get the user ID
+    user_id = message.from_user.id
+    
+    # Check if the user sent an image
+    if message.photo:
+        # Get the file ID of the largest image
+        file_id = message.photo[-1].file_id
+        
+        # Save the image to MongoDB
+        db.images.insert_one({'user_id': user_id, 'file_id': file_id})
+        
+        # Generate a unique 7-digit ID for the image
+        image_id = str(db.images.find().count()).zfill(7)
+        
+        # Send a message to the user with the image ID and image as caption
+        message.reply_photo(
+            photo='/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg',
+            caption=f'Image saved with ID: {image_id}'
+        )
+    else:
+        # Send a message to the user if they didn't send an image
+        message.reply_text("Please send an image")
 
-    # Check the size of the photo
-    if message.photo.file_size > 5 * 1024 * 1024:
-        message.reply_text('The maximum size of the photo is 5 MB.')
-        return
-
-    # Save the photo to MongoDB
-    file_id = message.photo.file_id
-    image_id = str(uuid.uuid4())
-    insert_image({'_id': image_id, 'file_id': file_id})
-
-    # Reply with the image ID
-    message.reply_photo(photo='/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg', caption=f'Image saved with ID: {image_id}')
 
 # Define a filter to handle messages with "/dy" command
 @filters.command('dy')
