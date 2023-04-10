@@ -1,4 +1,4 @@
-from Code import app
+from code import app
 from database import connect
 
 # Connect to the database
