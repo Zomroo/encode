@@ -2,7 +2,7 @@ import schedule
 import time
 from telegram.ext import Dispatcher
 
-from code import updater, get_handlers
+from code import updater, get_handlers, Dispatcher
 
 # Create a Dispatcher object and pass in the updater's bot
 dispatcher = Dispatcher(updater.bot, None)
