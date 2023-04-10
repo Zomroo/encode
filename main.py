@@ -7,10 +7,10 @@ from database import Database
 
 # Add the command handlers from code.py
 for handler in get_handlers():
-    updater.dispatcher.add_handler(handler)
+    dispatcher.add_handler(handler)
 
 # Add the reset command handler
-updater.dispatcher.add_handler(reset_handler)
+dispatcher.add_handler(reset_handler)
 
 # Schedule the database reset
 def reset_database():
