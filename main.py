@@ -3,6 +3,7 @@ import time
 
 from code import updater
 from reset import reset_handler
+from batch import dispatcher
 from database import Database
 
 def reset_database():
