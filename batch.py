@@ -113,8 +113,8 @@ def dby_command_handler(update, context):
 batch_handler = CommandHandler("batch", batch_command_handler)
 dby_handler = CommandHandler("dby", dby_command_handler)
 
-dispatcher.add_handler(dy_handler)
+dispatcher.add_handler(dby_handler)
 
 
 def get_handlers():
-    return [batch_handler, dy_handler]
+    return [batch_handler, dby_handler]
