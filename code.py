@@ -75,7 +75,9 @@ def dy_command_handler(client, message):
                 client.send_message(chat_id=message.chat.id, text="Image not found.")
 
             # Remove the reply handler
-            app.remove_handler(handle_reply)
+            if handle_reply in app.handlers:
+                app.remove_handler(handle_reply)
+
 
 
 
