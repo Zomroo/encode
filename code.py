@@ -83,7 +83,8 @@ def dy_command_handler(client, message):
     # Add the reply handler to the bot's handlers
     app.add_handler(handle_reply)
 
-
+# Define the reset command handler
+reset_app = app.on_message(filters.command('reset'))
 def reset_database():
     try:
         # Connect to the MongoDB database
