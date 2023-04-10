@@ -11,7 +11,7 @@ app = Client('my_bot', bot_token=BOT_TOKEN)
 
 # Define a filter to handle messages with "/en" command
 @filters.command('en')
-def save_image(message: Message):
+def save_image(client, message: Message):
     # Get the user ID
     user_id = message.from_user.id
     
@@ -34,6 +34,7 @@ def save_image(message: Message):
     else:
         # Send a message to the user if they didn't send an image
         message.reply_text("Please send an image")
+
 
 
 # Define a filter to handle messages with "/dy" command
