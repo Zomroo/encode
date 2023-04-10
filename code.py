@@ -115,7 +115,6 @@ def reset_database():
         return False
 
 # Define the /reset command handler
-# Define the /reset command handler
 @app.on_message(filters.command('reset'))
 def reset_command_handler(client, message):
     # Check if the user is authorized
@@ -127,7 +126,6 @@ def reset_command_handler(client, message):
     else:
         client.send_message(chat_id=message.chat.id, text="Failed to reset database.")
 
-
 if __name__ == "__main__":
-# Start the bot
-app.run()
+    # Start the bot
+    app.run()
