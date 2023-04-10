@@ -12,6 +12,11 @@ def batch_command_handler(update, context):
     # your code here
     pass
 
+def image_handler(update, context):
+    # get the photo file
+    photo_file = context.bot.get_file(update.message.photo[-1].file_id)
+    # download the photo
+    photo_file.download('photo.jpg')
 
 def reset_database():
     db = Database()
