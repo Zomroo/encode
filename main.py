@@ -2,6 +2,7 @@ import schedule
 import time
 
 from code import updater, get_handlers
+from batch import dispatcher
 from reset import reset_handler
 from database import Database
 
