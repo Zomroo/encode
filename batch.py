@@ -10,6 +10,10 @@ from database import Database
 
 logger = logging.getLogger(__name__)
 
+# Create an Updater object and pass in the bot's token
+updater = Updater(token=BOT_TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+
 # Define a function to handle the /batch command
 def batch_command_handler(update, context):
     # Reply to the user with instructions on how to send images
