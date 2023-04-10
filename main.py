@@ -24,6 +24,8 @@ schedule.every().day.at("00:00").do(reset_database)
 
 # Start the bot
 updater.start_polling()
+dispatcher = updater.dispatcher
+
 
 # Start the scheduler
 while True:
