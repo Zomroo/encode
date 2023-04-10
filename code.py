@@ -45,8 +45,8 @@ def dy_command_handler(update, context):
     # Ask the user for the image ID
     context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter the image ID:")
 
-    # Start the message handler
-    def message_handler(update, context):
+    # Define a function to handle the user's response
+    def handle_user_response(update, context):
         # Get the image ID from the message text
         image_id = update.message.text
 
@@ -62,11 +62,9 @@ def dy_command_handler(update, context):
         # Send the image to the user
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=image["file_id"], caption=f"Image ID: <code>{image_id}</code>", parse_mode='HTML')
 
-        # End the conversation
-        updater.dispatcher.remove_handler(message_handler)
-
-    message_handler = MessageHandler(Filters.text & (~Filters.command), message_handler)
-    updater.dispatcher.add_handler(message_handler)
+    # Register the message handler
+    message_handler = MessageHandler(Filters.text & (~Filters.command), handle_user_response)
+    dispatcher.add_handler(message_handler)
 
 
 # Add handlers for the start, en and dy commands
@@ -77,7 +75,6 @@ dy_handler = CommandHandler("dy", dy_command_handler)
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(en_handler)
 dispatcher.add_handler(dy_handler)
-
 
 def get_handlers():
     return [start_handler, en_handler, dy_handler]
