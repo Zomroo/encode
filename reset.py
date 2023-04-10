@@ -14,5 +14,4 @@ def reset(update, context):
         update.message.reply_text('You are not authorized to use this command.')
 
 if __name__ == "__main__":
-    # Start the bot
-    bot.run()
+ 
