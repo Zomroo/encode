@@ -49,15 +49,13 @@ def en_command_handler(client, message):
 
 
 
-# Define a command handler function
-@app.on_message(filters.command(['dy']))
-def handle_command(bot, message):
-    # Check if message has a photo attached
-    if message.photo:
-        # Ask for 7-digit unique code
-        bot.send_message(chat_id=message.chat.id, text='Please enter 7-digit unique code:')
-        # Set a filter to wait for the user's response
-        app.on_message(filters.private & filters.text)(ask_code)
+@app.on_message(filters.command(['dy']) & filters.photo)
+def handle_command(client, message):
+    # Ask for 7-digit unique code
+    client.send_message(chat_id=message.chat.id, text='Please enter 7-digit unique code:')
+    # Set a filter to wait for the user's response
+    app.on_message(filters.private & filters.text)(ask_code)
+
     else:
         bot.send_message(chat_id=message.chat.id, text='Please reply to a photo with /dy command.')
 
