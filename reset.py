@@ -3,6 +3,9 @@ from pyrogram.types import Message
 from database import Database
 from config import BOT_TOKEN, AUTHORIZED_USERS
 
+# Initialize the database
+db = Database()
+
 # Define the /reset command handler
 def reset(update, context):
     if update.message.from_user.id in AUTHORIZED_USERS:
@@ -14,4 +17,5 @@ def reset(update, context):
         update.message.reply_text('You are not authorized to use this command.')
 
 if __name__ == "__main__":
- 
+    # Start the bot
+    app.run()
