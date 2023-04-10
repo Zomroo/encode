@@ -2,71 +2,53 @@ import os
 import uuid
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from database import db
-from database import insert_image, find_image_by_id
-from config import BOT_TOKEN
+from database import Database
+from config import BOT_TOKEN, MONGO_URL
 
-# Initialize the Telegram client
-app = Client('my_bot', bot_token=BOT_TOKEN)
+# Set up the MongoDB database connection
+db = Database(MONGO_URL, "telegram_bot")
 
-# Define a filter to handle messages with "/en" command
-@filters.command('en')
-def save_image(message: Message):
-    # Get the user ID
-    user_id = message.from_user.id
-    
-    # Check if the user sent an image
-    if message.photo:
-        # Get the file ID of the largest image
-        file_id = message.photo[-1].file_id
-        
-        # Save the image to MongoDB
-        db.images.insert_one({'user_id': user_id, 'file_id': file_id})
-        
-        # Generate a unique 7-digit ID for the image
-        image_id = str(db.images.find().count()).zfill(7)
-        
-        # Send a message to the user with the image ID and image as caption
-        message.reply_photo(
-            photo='/home/gokuinstu2/encode/photo_2022-06-29_01-39-16.jpg',
-            caption=f'Image saved with ID: {image_id}'
-        )
-    else:
-        # Send a message to the user if they didn't send an image
-        message.reply_text("Please send an image")
+# Create the Pyrogram bot client
+bot = Client("my_bot", bot_token=BOT_TOKEN)
 
+# Add handler for the /en command
+@bot.on_message(filters.command("en"))
+def save_image(client, message):
+    # Check if the message has an image
+    if not message.photo:
+        return
 
+    # Save the image to MongoDB
+    file_id = message.photo[-1].file_id
+    unique_id = uuid.uuid4().hex[:7]
+    db.collection.insert_one({"file_id": file_id, "unique_id": unique_id})
 
+    # Send the user a reply with the unique ID
+    message.reply_text(f"Image saved with ID {unique_id}")
 
-# Define a filter to handle messages with "/dy" command
-@filters.command('dy')
-def retrieve_image(message):
-    # Ask for the image ID
-    message.reply_text('Please enter the ID of the image you want to retrieve.')
+# Add handler for the /dy command
+@bot.on_message(filters.command("dy"))
+def get_image(client, message):
+    # Ask the user for the unique ID
+    message.reply_text("Please enter the unique ID:")
 
-    # Define a callback to handle the response
-    @app.on_message(filters.private & filters.text)
-    def handle_image_id(_, message: Message):
-        # Find the image by ID
-        image_id = message.text
-        image_data = find_image_by_id(image_id)
+@bot.on_message(filters.text & ~filters.edited)
+def send_image(client, message):
+    # Check if the message is a valid unique ID
+    unique_id = message.text.strip()
+    record = db.collection.find_one({"unique_id": unique_id})
+    if not record:
+        message.reply_text("Invalid unique ID")
+        return
 
-        if not image_data:
-            # Reply if the ID is incorrect
-            message.reply_text('The provided ID is incorrect.')
-            return
+    # Get the image file ID from MongoDB and send it to the user
+    file_id = record["file_id"]
+    file_path = client.download_media(file_id)
+    message.reply_photo(photo=open(file_path, "rb"))
 
-        # Send the photo to the user
-        file_id = image_data['file_id']
-        message.reply_photo(photo=file_id)
+    # Delete the temporary file
+    os.remove(file_path)
 
-        # Remove the callback
-        app.remove_handler(handle_image_id)
-
-# Define a filter to handle the "/start" command
-@filters.command('start')
-def start_command(_, message: Message):
-    message.reply_text('Welcome to my bot! Use /en to save an image and /dy to retrieve it by ID.')
-
-# Run the client
-app.run()
+if __name__ == "__main__":
+    # Run the bot
+    bot.run()
