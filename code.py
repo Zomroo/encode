@@ -6,7 +6,7 @@ from telegram.ext import CommandHandler
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from code import start_command_handler, en_command_handler, dy_command_handler
+from handlers import start_command_handler, en_command_handler, dy_command_handler
 
 from config import BOT_TOKEN
 from database import Database
