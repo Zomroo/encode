@@ -7,6 +7,7 @@ import time
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pymongo import MongoClient
+from zipfile import ZipFile, ZIP_DEFLATED
 from pymongo.errors import ConnectionFailure
 
 from database import Database
@@ -150,7 +151,7 @@ async def zip_command_handler(client: Client, message: Message):
 
     # wait for the user to send images
     for i in range(MAX_IMAGES):
-        response = await client.listen(message.chat.id, timeout=60)
+        response = await app.listen(message.chat.id, timeout=60)
 
         if response.photo:
             images.append(response.photo.file_id)
@@ -166,7 +167,7 @@ async def zip_command_handler(client: Client, message: Message):
     await message.reply_text("Please set a password for the zip file.")
 
     # wait for the user to send the password
-    response = await client.listen(message.chat.id, timeout=60)
+    response = await app.listen(message.chat.id, timeout=60)
 
     password = response.text.strip()
 
@@ -189,7 +190,7 @@ async def zip_command_handler(client: Client, message: Message):
     )
 
     # delete the zip file from disk
-    os.remove(zip_file)        
+    os.remove(zip_file)
         
 if __name__ == "__main__":
     print("Start the bot")
