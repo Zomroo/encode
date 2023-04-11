@@ -64,7 +64,7 @@ def dy_command_handler(client, message):
     file_id = photo.file_id
 
     if photo.width != 1279 or photo.height != 1279:
-        client.send_message(chat_id=message.chat.id, text="Please reply with a photo that is 1279x1279.")
+        client.send_message(chat_id=message.chat.id, text="Please reply with a photo that is encoded.")
         return
 
     # Ask the user for an ID
