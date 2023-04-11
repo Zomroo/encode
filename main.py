@@ -153,8 +153,9 @@ async def zip_command_handler(client: Client, message: Message):
 
     # wait for the user to send images
     for i in range(MAX_IMAGES):
-        response = await client.receive(
-            filters= filters.photo & filters.private & (filters.chat(message.chat.id))
+        response = await client.get_messages(
+            chat_id=message.chat.id,
+            filters= filters.photo & filters.private
         )
 
         if response.photo:
@@ -171,8 +172,9 @@ async def zip_command_handler(client: Client, message: Message):
     await message.reply_text("Please set a password for the zip file.")
 
     # wait for the user to send the password
-    response = await client.receive(
-        filters= filters.text & filters.private & (filters.chat(message.chat.id))
+    response = await client.get_messages(
+        chat_id=message.chat.id,
+        filters= filters.text & filters.private
     )
 
     password = response.text.strip()
@@ -197,6 +199,7 @@ async def zip_command_handler(client: Client, message: Message):
 
     # delete the zip file from disk
     os.remove(zip_file)
+
 
         
 if __name__ == "__main__":
