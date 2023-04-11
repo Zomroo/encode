@@ -143,6 +143,7 @@ def reset_command_handler(client, message):
         
 MAX_IMAGES = 20
 
+
 @Client.on_message(filters.command("zip"))
 async def zip_command_handler(client: Client, message: Message):
     await message.reply_text("Please send the images you want to zip (max 20).")
@@ -151,7 +152,7 @@ async def zip_command_handler(client: Client, message: Message):
 
     # wait for the user to send images
     for i in range(MAX_IMAGES):
-        response = await app.listen(message.chat.id, timeout=60)
+        response = await client.listen(message.chat.id, timeout=60)
 
         if response.photo:
             images.append(response.photo.file_id)
@@ -191,6 +192,7 @@ async def zip_command_handler(client: Client, message: Message):
 
     # delete the zip file from disk
     os.remove(zip_file)
+
         
 if __name__ == "__main__":
     print("Start the bot")
