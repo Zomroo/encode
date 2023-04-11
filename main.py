@@ -25,36 +25,36 @@ def zip_command_handler(client, message):
     # Define a dictionary to store the photos
     photos = {}
 
-    # Wait for the user to send photos
-@Client.on_message(filters.chat(message.chat.id) & filters.photo & ~filters.edited)
-def handle_photos(client, message):
-    # Check if the maximum number of photos has been reached
-    if len(photos) >= 20:
-        client.send_message(chat_id=message.chat.id, text="Maximum number of photos reached.")
-        Client.remove_handler(handle_photos)
-        return
+    # Define the handle_photos function
+    @Client.on_message(filters.chat(message.chat.id) & filters.photo & ~filters.edited)
+    def handle_photos(client, message):
+        # Check if the maximum number of photos has been reached
+        if len(photos) >= 20:
+            client.send_message(chat_id=message.chat.id, text="Maximum number of photos reached.")
+            Client.remove_handler(handle_photos)
+            return
 
-    # Add the photo to the dictionary
-    photos[message.message_id] = message.photo.file_id
-    client.send_message(chat_id=message.chat.id, text=f"{len(photos)} photo(s) added. Please send more or enter /done to zip.")
+        # Add the photo to the dictionary
+        photos[message.message_id] = message.photo.file_id
+        client.send_message(chat_id=message.chat.id, text=f"{len(photos)} photo(s) added. Please send more or enter /done to zip.")
 
-    
     # Add the photos handler to the bot's handlers
     Client.add_handler(handle_photos)
     
-    # Define the /done command handler
+    # Define the done_command_handler function
     @Client.on_message(filters.command('done'))
     def done_command_handler(client, message):
         # Check if there are any photos to zip
         if not photos:
             client.send_message(chat_id=message.chat.id, text="No photos to zip.")
             Client.remove_handler(handle_photos)
+            Client.remove_handler(done_command_handler)
             return
 
         # Ask the user to set a password for the zip file
         client.send_message(chat_id=message.chat.id, text="Please set a password for the zip file.")
 
-        # Wait for a reply from the user
+        # Define the handle_password function
         @Client.on_message(filters.chat(message.chat.id) & filters.text)
         def handle_password(client, reply):
             # Check if the reply message is from the same user and is a text message
