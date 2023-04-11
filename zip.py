@@ -19,16 +19,15 @@ def start_zip(bot, message):
         history = app.get_history(chat_id=chat_id, limit=1)
         if not history:
             bot.send_message(chat_id, "Timed out. Zip process aborted.")
-            return       
-    message = history[0]
-    if message.text and message.text.lower() == "/done":
-        break
-    elif message.photo:
-        images.append(message.photo.file_id)
-    elif i == 19:
-        bot.send_message(chat_id, "Maximum number of images reached.")
-        break
-
+            return
+        message = history[0]
+        if message.text and message.text.lower() == "/done":
+            break
+        elif message.photo:
+            images.append(message.photo.file_id)
+        elif i == 19:
+            bot.send_message(chat_id, "Maximum number of images reached.")
+            break
 
     
     # check if user sent any images
