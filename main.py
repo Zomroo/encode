@@ -139,6 +139,58 @@ def reset_command_handler(client, message):
     else:
         client.send_message(chat_id=message.chat.id, text="Failed to reset database.")
 
+        
+MAX_IMAGES = 20
+
+@Client.on_message(filters.command("zip"))
+async def zip_command_handler(client: Client, message: Message):
+    await message.reply_text("Please send the images you want to zip (max 20).")
+
+    images = []
+
+    # wait for the user to send images
+    for i in range(MAX_IMAGES):
+        response = await client.listen(message.chat.id, timeout=60)
+
+        if response.photo:
+            images.append(response.photo.file_id)
+        else:
+            break
+
+    # check if any images were sent
+    if not images:
+        await message.reply_text("No images were sent.")
+        return
+
+    # ask the user to set a password for the zip file
+    await message.reply_text("Please set a password for the zip file.")
+
+    # wait for the user to send the password
+    response = await client.listen(message.chat.id, timeout=60)
+
+    password = response.text.strip()
+
+    # create the zip file and encrypt it with the user's password
+    zip_file = f"{message.chat.id}.zip"
+    with ZipFile(zip_file, "w", compression=ZIP_DEFLATED) as zf:
+        for i, image in enumerate(images):
+            file_path = f"{i}.jpg"
+            file_bytes = await client.download_media(image)
+            zf.writestr(file_path, file_bytes)
+
+    with ZipFile(zip_file, "r") as zf:
+        zf.setpassword(password.encode("utf-8"))
+
+    # send the zip file to the user
+    await client.send_document(
+        message.chat.id,
+        document=zip_file,
+        caption="Here is your zip file with encrypted password."
+    )
+
+    # delete the zip file from disk
+    os.remove(zip_file)        
+        
 if __name__ == "__main__":
     print("Start the bot")
     Client.run()
