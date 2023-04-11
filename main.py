@@ -13,7 +13,7 @@ from database import Database
 
 from config import *
 
-Client = Client(
+Client = Client('sex-bot', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Define the start command handler
 @Client.on_message(filters.command('start'))
