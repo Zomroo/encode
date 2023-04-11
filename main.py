@@ -167,7 +167,7 @@ async def zip_command_handler(client: Client, message: Message):
     await message.reply_text("Please set a password for the zip file.")
 
     # wait for the user to send the password
-    response = await app.listen(message.chat.id, timeout=60)
+    response = await client.listen(message.chat.id, timeout=60)
 
     password = response.text.strip()
 
