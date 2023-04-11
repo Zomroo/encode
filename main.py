@@ -73,6 +73,7 @@ def dy_command_handler(client, message):
     # Wait for a reply from the user
     @Client.on_message(filters.chat(message.chat.id) & filters.text)
     def handle_reply(client, reply):
+        print("Handling reply...")
         # Check if the reply message is from the same user and is a text message
         if reply.from_user.id == message.from_user.id and reply.text:
             # Get the ID from the reply
@@ -90,10 +91,15 @@ def dy_command_handler(client, message):
                 client.send_message(chat_id=message.chat.id, text="Image not found.")
 
             # Remove the reply handler
-            Client.remove_handler(handle_reply)
-
+        print("Removing reply handler...")
+        Client.remove_handler(handle_reply)
     # Add the reply handler to the bot's handlers
-    Client.add_handler(handle_reply)
+handler = Client.add_handler(handle_reply)
+print(f"Added handler: {handler}")
+
+# Remove the reply handler
+print(f"Removing handler: {handler}")
+Client.remove_handler(handler)
 
 
 # Define the reset command handler
