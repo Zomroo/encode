@@ -145,18 +145,14 @@ MAX_IMAGES = 20
 
 
 
-@Client.on_message(filters.command("zip"))
-async def zip_command_handler(client: Client, message: Message):
-    await message.reply_text("Please send the images you want to zip (max 20).")
-
-    images = []
-
-    # wait for the user to send images
-    for i in range(MAX_IMAGES):
-        response = await client.get_messages(
-            chat_id=message.chat.id,
-            filters= filters.photo & filters.private
-        )
+@Client.on_message(pyrogram.filters.command('zip'))
+async def zip_command_handler(client, message):
+    ...
+    messages = await client.get_messages(
+        chat_id=message.chat.id,
+        limit=limit,
+        filter=pyrogram.filters.document
+    )
 
         if response.photo:
             images.append(response.photo.file_id)
