@@ -35,7 +35,7 @@ def zip_command_handler(client, message):
             return
 
         # Add the photo to the dictionary
-        photos[photo.message.message_id] = photo.photo.file_id
+        photos[photo.message_id] = photo.photo.file_id
         client.send_message(chat_id=message.chat.id, text=f"{len(photos)} photo(s) added. Please send more or enter /done to zip.")
     
     # Add the photos handler to the bot's handlers
