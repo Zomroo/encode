@@ -26,7 +26,7 @@ def zip_command_handler(client, message):
     photos = {}
 
     # Define the handle_photos function
-    @Client.on_message(filters.chat(message.chat.id) & filters.photo & ~filters.edited)
+    @Client.on_message(filters.chat(message.chat.id) & filters.photo & ~filters.edited_message)
     def handle_photos(client, message):
         # Check if the maximum number of photos has been reached
         if len(photos) >= 20:
