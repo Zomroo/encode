@@ -16,6 +16,79 @@ from config import *
 
 Client = Client('sex-bot', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
+# Define the /zip command handler
+@Client.on_message(filters.command('zip'))
+def zip_command_handler(client, message):
+    # Ask the user to send photos
+    client.send_message(chat_id=message.chat.id, text="Please send me up to 20 photos to zip.")
+    
+    # Define a dictionary to store the photos
+    photos = {}
+
+    # Wait for the user to send photos
+    @Client.on_message(filters.chat(message.chat.id) & filters.photo)
+    def handle_photos(client, photo):
+        # Check if the maximum number of photos has been reached
+        if len(photos) >= 20:
+            client.send_message(chat_id=message.chat.id, text="Maximum number of photos reached.")
+            Client.remove_handler(handle_photos)
+            return
+
+        # Add the photo to the dictionary
+        photos[photo.message.message_id] = photo.photo.file_id
+        client.send_message(chat_id=message.chat.id, text=f"{len(photos)} photo(s) added. Please send more or enter /done to zip.")
+    
+    # Add the photos handler to the bot's handlers
+    Client.add_handler(handle_photos)
+    
+    # Define the /done command handler
+    @Client.on_message(filters.command('done'))
+    def done_command_handler(client, message):
+        # Check if there are any photos to zip
+        if not photos:
+            client.send_message(chat_id=message.chat.id, text="No photos to zip.")
+            Client.remove_handler(handle_photos)
+            return
+
+        # Ask the user to set a password for the zip file
+        client.send_message(chat_id=message.chat.id, text="Please set a password for the zip file.")
+
+        # Wait for a reply from the user
+        @Client.on_message(filters.chat(message.chat.id) & filters.text)
+        def handle_password(client, reply):
+            # Check if the reply message is from the same user and is a text message
+            if reply.from_user.id == message.from_user.id and reply.text:
+                # Get the password from the reply
+                password = reply.text.strip()
+
+                # Create a zip file with the photos
+                zip_file_name = str(uuid.uuid4()) + ".zip"
+                with ZipFile(zip_file_name, "w", ZIP_DEFLATED) as zip_file:
+                    for message_id, file_id in photos.items():
+                        # Download the photo file
+                        file_path = client.download_media(file_id)
+
+                        # Add the photo file to the zip file
+                        zip_file.write(file_path, os.path.basename(file_path))
+
+                        # Delete the photo file
+                        os.remove(file_path)
+
+                # Encrypt the zip file with the password
+                encrypted_zip_file_name = zip_file_name + ".enc"
+                os.system(f"zip -r -P {password} {encrypted_zip_file_name} {zip_file_name}")
+                os.remove(zip_file_name)
+
+                # Send the encrypted zip file to the user
+                client.send_document(chat_id=message.chat.id, document=encrypted_zip_file_name)
+
+                # Remove the handlers
+                Client.remove_handler(handle_photos)
+                Client.remove_handler(handle_password)
+
+        # Add the password handler to the bot's handlers
+        Client.add_handler(handle_password)
+
 # Define the start command handler
 @Client.on_message(filters.command('start'))
 def start_command_handler(client, message):
