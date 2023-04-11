@@ -16,13 +16,17 @@ def start_zip(bot, message):
     
     # get up to 20 images or until user types /done
     for i in range(20):
-        message = bot.listen(chat_id)
-        if message.text and message.text.lower() == "/done":
-            break
-        elif message.photo:
-            images.append(message.photo.file_id)
-        elif i == 19:
-            bot.send_message(chat_id, "Maximum number of images reached.")
+        for message in bot.iter_history(chat_id):
+            if message.text and message.text.lower() == "/done":
+                break
+            elif message.photo:
+                images.append(message.photo.file_id)
+            elif i == 19:
+                bot.send_message(chat_id, "Maximum number of images reached.")
+                break
+        else:
+            bot.send_message(chat_id, "Timed out. Zip process aborted.")
+            return
     
     # check if user sent any images
     if not images:
@@ -31,11 +35,13 @@ def start_zip(bot, message):
     
     # ask user to set password
     bot.send_message(chat_id, "Please set a password for the zip file.")
-    message = bot.listen(chat_id, timeout=60)
-    if not message.text:
+    for message in bot.iter_history(chat_id, reverse=True):
+        if message.text:
+            password = message.text
+            break
+    else:
         bot.send_message(chat_id, "Timed out. Zip process aborted.")
         return
-    password = message.text
     
     # create the zip file and add images
     zip_filename = "images.zip"
