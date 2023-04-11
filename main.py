@@ -154,10 +154,11 @@ async def zip_command_handler(client, message):
         filter=pyrogram.filters.document
     )
 
-        if response.photo:
-            images.append(response.photo.file_id)
-        else:
-            break
+    if response.photo:
+        images.append(response.photo.file_id)
+    else:
+        raise ValueError("No photo found in response.")
+
 
     # check if any images were sent
     if not images:
