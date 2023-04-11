@@ -26,17 +26,18 @@ def zip_command_handler(client, message):
     photos = {}
 
     # Wait for the user to send photos
-    @Client.on_message(filters.chat(message.chat.id) & filters.photo)
-    def handle_photos(client, photo):
-        # Check if the maximum number of photos has been reached
-        if len(photos) >= 20:
-            client.send_message(chat_id=message.chat.id, text="Maximum number of photos reached.")
-            Client.remove_handler(handle_photos)
-            return
+@Client.on_message(filters.chat(message.chat.id) & filters.photo & ~filters.edited)
+def handle_photos(client, message):
+    # Check if the maximum number of photos has been reached
+    if len(photos) >= 20:
+        client.send_message(chat_id=message.chat.id, text="Maximum number of photos reached.")
+        Client.remove_handler(handle_photos)
+        return
 
-        # Add the photo to the dictionary
-        photos[photo.message_id] = photo.photo.file_id
-        client.send_message(chat_id=message.chat.id, text=f"{len(photos)} photo(s) added. Please send more or enter /done to zip.")
+    # Add the photo to the dictionary
+    photos[message.message_id] = message.photo.file_id
+    client.send_message(chat_id=message.chat.id, text=f"{len(photos)} photo(s) added. Please send more or enter /done to zip.")
+
     
     # Add the photos handler to the bot's handlers
     Client.add_handler(handle_photos)
