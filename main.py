@@ -66,11 +66,12 @@ def dy_command_handler(client, message):
     if photo.width != 1279 or photo.height != 1279:
         client.send_message(chat_id=message.chat.id, text="Please reply with a photo that is 1279x1279.")
         return
+
     # Ask the user for an ID
     client.send_message(chat_id=message.chat.id, text="Please enter the ID:")
 
     # Wait for a reply from the user
-    @app.on_message(filters.chat(message.chat.id) & filters.text)
+    @Client.on_message(filters.chat(message.chat.id) & filters.text)
     def handle_reply(client, reply):
         # Check if the reply message is from the same user and is a text message
         if reply.from_user.id == message.from_user.id and reply.text:
@@ -89,10 +90,10 @@ def dy_command_handler(client, message):
                 client.send_message(chat_id=message.chat.id, text="Image not found.")
 
             # Remove the reply handler
-            app.remove_handler(handle_reply)
+            Client.remove_handler(handle_reply)
 
     # Add the reply handler to the bot's handlers
-    app.add_handler(handle_reply)
+    Client.add_handler(handle_reply)
 
 
 # Define the reset command handler
