@@ -122,7 +122,7 @@ def en_command_handler(client, message):
     db.insert_document("photos", {"_id": photo_id, "file_id": file_id})
 
     # Send a reply to the user with the ID and photo
-    file_path = '/home/gokuinstu2/encode/photo_2023-04-11_04-36-01 (1).jpg'
+    file_path = '/root/encode/photo_2023-04-11_04-36-01 (1).jpg'
     client.send_photo(chat_id=message.chat.id, photo=file_path, caption=f"Your photo has been saved with ID `{photo_id}`.")
 
 
